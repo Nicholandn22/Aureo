@@ -1,0 +1,1 @@
+@pyth-network/pyth-sdk-solidity/=lib/pyth-sdk-solidity/
