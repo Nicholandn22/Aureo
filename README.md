@@ -17,6 +17,39 @@ The protocol consists of three main components:
 2.  **MockGold (mGOLD)**: An ERC20 token representing the tokenized gold. It has `MINTER_ROLE` controlled by the Pool.
 3.  **MockUSDC**: A standard ERC20 stablecoin used as collateral/payment for minting gold.
 
+## 📜 Smart Contract Reference
+
+### 1. AureoRWAPool.sol
+The main interaction point for users.
+
+*   **`buyGold(uint256 _usdcAmount)`**
+    *   **Description:** Allows users to purchase synthetic gold (`mGOLD`) using `USDC`.
+    *   **Logic:** Transfers USDC from the user to the Pool, calculates the gold amount based on the real-time XAU/USD price from Pyth, and mints `mGOLD` to the user.
+    *   **Requirement:** User must approve the Pool to spend their USDC first.
+
+*   **`sellGold(uint256 _goldAmount)`**
+    *   **Description:** Allows users to redeem their `mGOLD` back for `USDC`.
+    *   **Logic:** Transfers `mGOLD` from the user to the Pool, burns it, calculates the USDC value based on current oracle prices, and transfers USDC from the Pool's liquidity to the user.
+    *   **Requirement:** Pool must have sufficient USDC liquidity.
+
+*   **`getGoldPrice18Decimals()`**
+    *   **Description:** A view function that fetches the latest Gold price from the Pyth Network Oracle.
+    *   **Logic:** Normalizes the price exponent to standard 18 decimals for precision in calculations. Ensures price data is no older than 60 seconds.
+
+*   **`emergencyWithdraw(address _token)`**
+    *   **Description:** Admin-only function.
+    *   **Logic:** Allows the owner to withdraw any tokens stuck in the contract (e.g., for migration or emergency recovery).
+
+### 2. MockTokens.sol
+
+*   **`MockUSDC`**
+    *   **Type:** Standard ERC20 (6 Decimals).
+    *   **Function `mint(address to, uint256 amount)`:** Public faucet function. Allows anyone to mint free testnet USDC for testing the protocol.
+
+*   **`MockGold`**
+    *   **Type:** ERC20 with Access Control (18 Decimals).
+    *   **Role `MINTER_ROLE`:** Restricted permission. Only addresses with this role (i.e., the `AureoRWAPool`) can mint or burn tokens. This ensures `mGOLD` supply is always fully backed by the Pool's logic.
+
 ## 🛠 Prerequisites
 
 Ensure you have the following installed:
