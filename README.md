@@ -9,6 +9,18 @@ Aureo is a **Real World Asset (RWA)** protocol built on the **Mantle Network**, 
 - **Liquidity Pool**: Automated liquidity management for minting and redeeming RWA tokens.
 - **Mantle Network Optimized**: Built to leverage the low fees and speed of the Mantle L2 ecosystem.
 
+## 🔗 Deployed Contracts (Mantle Sepolia)
+
+You can interact with the protocol on the **Mantle Sepolia Testnet** using the following addresses:
+
+| Contract | Address | Symbol | Decimals |
+| :--- | :--- | :--- | :--- |
+| **AureoRWAPool** | `0x7D62184c94F46048014C89652690732d5bac5B3F` | - | - |
+| **MockUSDC** | `0x20f58AE33a676969B29721E09c7B8fD67B2EB212` | `mUSDC` | 6 |
+| **MockGold** | `0xE4D1eE878Ea7821777A648633565de9cD7633C34` | `mGOLD` | 18 |
+
+*Add these token addresses to your wallet (MetaMask, Coinbase Wallet, etc.) to view your balances.*
+
 ## 🏗 Architecture
 
 The protocol consists of three main components:
