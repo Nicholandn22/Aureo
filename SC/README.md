@@ -15,9 +15,97 @@ You can interact with the protocol on the **Mantle Sepolia Testnet**.
 
 | Contract | Address | Symbol | Decimals |
 | :--- | :--- | :--- | :--- |
-| **AureoRWAPool** | `0x7D62184c94F46048014C89652690732d5bac5B3F` | - | - |
-| **MockUSDC** | `0x20f58AE33a676969B29721E09c7B8fD67B2EB212` | `mUSDC` | 6 |
-| **MockGold** | `0xE4D1eE878Ea7821777A648633565de9cD7633C34` | `mGOLD` | 18 |
+| **AureoRWAPool** | `0x475F5c184D23D5839123e7CDB23273eF0470C018` | - | - |
+| **MockUSDC** | `0x53b8e9e6513A2e7A4d23F8F9BFe3F5985C9788e4` | `mUSDC` | 6 |
+| **MockGold** | `0x6830999D9173B235dF6ac8c9068c4235fd58f532` | `mGOLD` | 18 |
+
+*Note: Due to inactive Pyth Gold Feed on testnet, the current deployment uses ETH/USD price feed for demonstration.*
+
+## 🛒 CLI Interaction Guide (Manual Testing)
+
+This guide allows you to manually interact with the Aureo Protocol using `foundry`'s `cast` tool.
+
+### 1. Setup Environment
+Set up your terminal with the necessary environment variables and contract addresses.
+
+```bash
+# 1. Load your .env file
+# Ensure it contains: MANTLE_RPC_URL and PRIVATE_KEY
+source .env
+
+# 2. Set Contract Addresses as Variables (Shortcuts)
+export USDC=0x53b8e9e6513A2e7A4d23F8F9BFe3F5985C9788e4
+export GOLD=0x6830999D9173B235dF6ac8c9068c4235fd58f532
+export POOL=0x475F5c184D23D5839123e7CDB23273eF0470C018
+
+# 3. Set your Wallet Address (for checking balances)
+export MY_WALLET=$(cast wallet address --private-key $PRIVATE_KEY)
+```
+
+### 2. Get Free Testnet USDC (Faucet)
+Before buying Gold, you need USDC. The MockUSDC contract has a public `mint` function.
+
+```bash
+# Mint 1,000 USDC to your wallet
+# USDC has 6 decimals: 1000 * 10^6 = 1000000000
+cast send $USDC "mint(address,uint256)" $MY_WALLET 1000000000 \
+  --rpc-url $MANTLE_RPC_URL \
+  --private-key $PRIVATE_KEY
+```
+
+### 3. Buy Gold (mGOLD)
+Buying Gold requires two steps: **Approve** and **Buy**.
+
+**Step A: Approve Pool to spend your USDC**
+We approve the pool to spend up to 1,000 USDC.
+```bash
+cast send $USDC "approve(address,uint256)" $POOL 1000000000 \
+  --rpc-url $MANTLE_RPC_URL \
+  --private-key $PRIVATE_KEY
+```
+
+**Step B: Execute Buy Transaction**
+Buy Gold worth 10 USDC.
+```bash
+# Amount: 10 USDC = 10,000,000 (6 decimals)
+cast send $POOL "buyGold(uint256)" 10000000 \
+  --rpc-url $MANTLE_RPC_URL \
+  --private-key $PRIVATE_KEY
+```
+
+### 4. Check Your Balance
+Verify that you received the Gold.
+```bash
+# Check Gold Balance (18 Decimals)
+cast call $GOLD "balanceOf(address)" $MY_WALLET --rpc-url $MANTLE_RPC_URL | cast --to-dec
+```
+
+### 5. Sell Gold (mGOLD)
+Selling also requires two steps: **Approve** and **Sell**.
+
+**Step A: Approve Pool to take your Gold**
+Approve the pool to take 0.01 Gold.
+```bash
+# Amount: 0.01 Gold = 10,000,000,000,000,000 (18 decimals)
+cast send $GOLD "approve(address,uint256)" $POOL 10000000000000000 \
+  --rpc-url $MANTLE_RPC_URL \
+  --private-key $PRIVATE_KEY
+```
+
+**Step B: Execute Sell Transaction**
+Sell 0.01 Gold back for USDC.
+```bash
+cast send $POOL "sellGold(uint256)" 10000000000000000 \
+  --rpc-url $MANTLE_RPC_URL \
+  --private-key $PRIVATE_KEY
+```
+
+### 6. Check Price
+See the current Oracle price used by the pool.
+```bash
+# Returns price with 18 decimals
+cast call $POOL "getGoldPrice18Decimals()" --rpc-url $MANTLE_RPC_URL | cast --to-dec
+```
 
 ## 🏗 Architecture
 
@@ -89,7 +177,7 @@ Create a `.env` file in the `SC` directory based on the example below:
 PRIVATE_KEY=0xYourPrivateKeyHere...
 
 # Network RPCs
-RPC_URL=https://rpc.sepolia.mantle.xyz
+MANTLE_RPC_URL=https://rpc.sepolia.mantle.xyz
 
 # Verification (Optional)
 MANTLESCAN_API_KEY=YourExplorerApiKey...
@@ -101,7 +189,7 @@ Deploy the entire protocol (USDC, Gold, and Pool) using the provided script.
 
 ```bash
 source .env && forge script script/script/DeployAureo.s.sol:DeployAureo \
---rpc-url $RPC_URL \
+--rpc-url $MANTLE_RPC_URL \
 --broadcast \
 --chain-id 5003 \
 --legacy \

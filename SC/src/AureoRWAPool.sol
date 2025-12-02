@@ -41,8 +41,8 @@ contract AureoRWAPool is Ownable {
 
     // --- HELPER: Normalize Pyth Price to 18 Decimals ---
     function getGoldPrice18Decimals() public view returns (uint256) {
-        // Ambil harga (Max basi 60 detik)
-        PythStructs.Price memory price = pyth.getPriceNoOlderThan(goldPriceId, 60);
+        // Ambil harga (Tanpa batas waktu/staleness untuk Testnet)
+        PythStructs.Price memory price = pyth.getPriceUnsafe(goldPriceId);
         require(price.price > 0, "Invalid Oracle Price");
 
         int256 priceVal = int256(price.price);

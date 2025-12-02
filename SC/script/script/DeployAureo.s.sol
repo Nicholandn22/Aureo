@@ -24,9 +24,9 @@ contract DeployAureo is Script {
         console.log("mGOLD Deployed at:", address(gold));
 
         // 2. CONFIG PYTH (Mantle Sepolia)
-        address pythAddress = 0xA2aa501b19aff244D90cc15a4Cf739D2725B5729;
-        // ID XAU/USD (Standard Testnet ID)
-        bytes32 goldId = 0x765d2ba906dbc32ca17cc11f5310a89e9ee7f6496373a5527cf664719e700975;
+        address pythAddress = 0x98046Bd286715D3B0BC227Dd7a956b83D8978603;
+        // ID ETH/USD (Substitute for Gold as XAU feed is inactive)
+        bytes32 goldId = 0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace;
 
         // 3. DEPLOY POOL
         AureoRWAPool pool = new AureoRWAPool(
