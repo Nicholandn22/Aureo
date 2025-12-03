@@ -42,20 +42,20 @@ export function DepositDialog({ children, onDeposit }: DepositDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-md backdrop-blur-xl bg-white/90 dark:bg-gray-900/90 border-gray-300/50 dark:border-gray-600/50">
+      <DialogContent className="sm:max-w-md backdrop-blur-sm bg-card/95 border-border/60">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <span className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-foreground/70" />
+          <DialogTitle className="flex items-center gap-2 text-xl">
+            <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 dark:from-amber-500/20 dark:to-orange-500/20 flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-amber-600 dark:text-amber-400" />
             </span>
             Deposit IDRX
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="leading-relaxed">
             Enter the amount you want to deposit. Our AI will analyze the market and buy gold at the best price.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-5 py-4">
           <div className="space-y-2">
             <label className="text-sm font-medium">Amount (IDR)</label>
             <div className="relative">
@@ -81,7 +81,7 @@ export function DepositDialog({ children, onDeposit }: DepositDialogProps) {
                   variant="outline"
                   size="sm"
                   onClick={() => setAmount(quick.toString())}
-                  className="font-normal"
+                  className="font-normal border-border/60 hover:bg-amber-50 dark:hover:bg-amber-950/20"
                 >
                   Rp {quick.toLocaleString('id-ID')}
                 </Button>
@@ -90,12 +90,12 @@ export function DepositDialog({ children, onDeposit }: DepositDialogProps) {
           </div>
 
           {amount && parseInt(amount) > 0 && (
-            <div className="bg-accent/50 dark:bg-accent/30 border border-border rounded-lg p-4 space-y-2">
+            <div className="bg-gradient-to-br from-amber-50/80 to-orange-50/80 dark:from-amber-950/20 dark:to-orange-950/20 border border-amber-200/50 dark:border-amber-800/30 rounded-xl p-4 space-y-2">
               <div className="flex items-start gap-2">
-                <Sparkles className="w-5 h-5 text-foreground/70 mt-0.5 flex-shrink-0" />
+                <Sparkles className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
                 <div className="space-y-1 text-sm">
                   <p className="font-medium text-foreground">AI Will Optimize Your Purchase</p>
-                  <p className="text-muted-foreground">
+                  <p className="text-muted-foreground leading-relaxed">
                     Your funds will be held securely while our AI monitors gold prices. When it detects the optimal entry point, it will automatically execute the purchase.
                   </p>
                 </div>
@@ -119,7 +119,7 @@ export function DepositDialog({ children, onDeposit }: DepositDialogProps) {
           <Button
             onClick={handleDeposit}
             disabled={!amount || parseInt(amount) <= 0 || isProcessing}
-            className="w-full sm:w-auto bg-foreground hover:bg-foreground/90 text-background"
+            className="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-lg shadow-amber-500/20"
           >
             {isProcessing ? 'Processing...' : 'Deposit Now'}
           </Button>

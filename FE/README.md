@@ -1,20 +1,22 @@
-# AUREO - The Intelligent Gold Standard for Daily Payments
+# AUREO - AI-Powered Gold Investment Platform
 
-AUREO adalah dompet digital generasi baru yang menggabungkan stabilitas emas (RWA) dengan kecerdasan buatan (AI). Project ini dikembangkan untuk Hackathon 2025 di Mantle Testnet.
+Minimalist DeFi platform for smart gold investments using AI market analysis. Built on Mantle Sepolia Testnet.
 
-## 🌟 Fitur Utama
+## 🌟 Key Features
 
-- **AI-Driven Smart Deposit**: AI menganalisis pasar dan membeli emas pada momentum terbaik
-- **Spendable Gold**: Saldo dalam emas, tapi bisa langsung digunakan untuk transaksi harian
-- **Invisible Web3**: UX yang familiar tanpa kompleksitas Web3
-- **Privy Authentication**: Login dengan Google atau Wallet
+- **AI Smart Entry**: AI analyzes market and buys gold at optimal moments
+- **Real-time Analysis**: Uses Pyth Network prices + Gemini AI
+- **Automated Trading**: Cron-based system monitors every 5 minutes
+- **Web3 Auth**: Privy authentication with email/Google/wallet
 
 ## 🚀 Tech Stack
 
-- **Frontend**: Next.js 16 + TypeScript
-- **UI Components**: shadcn/ui + Tailwind CSS v4
+- **Frontend**: Next.js 16 + TypeScript + Tailwind CSS v4
 - **Authentication**: Privy
-- **Network**: Mantle Testnet / Base Testnet
+- **Blockchain**: Mantle Sepolia Testnet, Ethers.js v6
+- **Storage**: In-memory (perfect for hackathon demo)
+- **AI**: Google Gemini for market analysis
+- **Price Feeds**: Pyth Network (XAU/USD)
 - **Package Manager**: Bun
 
 ## 📦 Setup Instructions
@@ -27,63 +29,175 @@ bun install
 
 ### 2. Setup Environment Variables
 
-Buat file `.env.local` dan isi dengan:
+Create `.env.local`:
 
 ```env
-# Privy Configuration (Get from https://dashboard.privy.io)
-NEXT_PUBLIC_PRIVY_APP_ID=your-privy-app-id-here
-
-# Network Configuration
-NEXT_PUBLIC_CHAIN_ID=5003
+# Frontend (Public)
+NEXT_PUBLIC_PRIVY_APP_ID=your_privy_app_id
 NEXT_PUBLIC_RPC_URL=https://rpc.sepolia.mantle.xyz
+NEXT_PUBLIC_AUREO_POOL_ADDRESS=your_contract_address
+
+# Backend (Private)
+GEMINI_API_KEY=your_gemini_api_key
+CONTRACT_PRIVATE_KEY=your_backend_wallet_private_key
+CRON_SECRET=hackathon-demo-secret
 ```
 
-### 3. Get Privy App ID
+### 3. Get Required API Keys
 
-1. Kunjungi [Privy Dashboard](https://dashboard.privy.io)
-2. Buat aplikasi baru
-3. Copy App ID dan paste ke `.env.local`
-4. Konfigurasi login methods: Email, Google, Wallet
+**Privy App ID:**
+1. Visit [Privy Dashboard](https://dashboard.privy.io)
+2. Create new app
+3. Enable Email, Google, Wallet login
+
+**Gemini API Key:**
+1. Visit [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. Create API key
 
 ### 4. Run Development Server
 
 ```bash
+```bash
 bun dev
 ```
 
-Buka [http://localhost:3000](http://localhost:3000) di browser.
+Open [http://localhost:3000](http://localhost:3000)
 
-## 📁 Struktur Project
+## 🤖 AI Smart Entry Flow
+
+1. **User deposits IDRX** → Creates pending deposit in memory
+2. **Cron job runs** → Every 5 minutes via external service
+3. **AI analyzes market**:
+   - Fetches real-time gold price from Pyth Network
+   - Analyzes 24h high/low, volatility, trends
+   - Prompts Gemini AI for BUY/WAIT decision
+4. **If BUY signal** (confidence ≥70%) → Executes smart contract swap
+5. **User notified** → "Aureo AI bought gold at discount!"
+
+## 📡 API Routes
+
+All routes are built into Next.js API:
+
+- `POST /api/deposits` - Create new deposit
+- `GET /api/deposits/:depositId` - Check deposit status
+- `GET /api/deposits/wallet/:address` - User's deposit history
+- `GET /api/price` - Real-time gold price from Pyth
+- `GET /api/balances/:address` - User's gold balance
+- `GET /api/transactions/:address` - Transaction history
+- `GET /api/cron/analyze` - Cron endpoint (protected with Bearer token)
+
+## 🔄 Cron Setup
+
+Since Vercel Hobby plan only allows daily cron, use external service:
+
+**Option 1: cron-job.org**
+1. Visit [cron-job.org](https://cron-job.org)
+2. Create free account
+3. Add new cron job:
+   - **URL**: `https://your-domain.vercel.app/api/cron/analyze`
+   - **Schedule**: Every 5 minutes
+   - **Headers**: `Authorization: Bearer your_cron_secret`
+
+**Option 2: EasyCron**
+Same setup as above
+
+## 📁 Project Structure
 
 ```
-fe/
+FE/
 ├── app/
+│   ├── api/                   # Next.js API Routes
+│   │   ├── balances/
+│   │   ├── cron/
+│   │   ├── deposits/
+│   │   ├── price/
+│   │   └── transactions/
 │   ├── dashboard/
-│   │   └── page.tsx          # Dashboard page
-│   ├── globals.css            # Global styles
-│   ├── layout.tsx             # Root layout with Privy
-│   ├── page.tsx               # Landing page
-│   └── providers.tsx          # Privy provider config
+│   │   └── page.tsx
+│   ├── globals.css
+│   ├── layout.tsx
+│   ├── page.tsx
+│   └── providers.tsx
 ├── components/
 │   ├── ui/                    # shadcn/ui components
-│   │   ├── button.tsx
-│   │   ├── card.tsx
-│   │   ├── dialog.tsx
-│   │   └── input.tsx
-│   ├── dashboard.tsx          # Dashboard component
-│   ├── deposit-dialog.tsx     # Deposit modal
-│   ├── landing-page.tsx       # Landing page component
-│   └── withdraw-dialog.tsx    # Withdraw modal
+│   ├── dashboard.tsx
+│   ├── deposit-dialog.tsx
+│   ├── landing-page.tsx
+│   └── withdraw-dialog.tsx
 ├── lib/
-│   └── utils.ts               # Utility functions
-└── public/                    # Static assets
+│   ├── services/
+│   │   ├── aiService.ts      # Gemini AI integration
+│   │   ├── contractService.ts # Smart contract calls
+│   │   └── pythService.ts    # Pyth price feeds
+│   └── utils.ts
+└── public/
 ```
 
-## 🎨 Features Overview
+## 🎨 Design System
+
+**Color Palette:**
+- Primary: Amber/Gold gradient (oklch values)
+- Light mode: Warm whites, subtle shadows
+- Dark mode: Deep blacks, amber accents
+
+**Typography:**
+- Sans: Inter variable font
+- Minimalist, clean spacing
+
+## 🚀 Deployment
+
+### Deploy to Vercel
+
+1. Push to GitHub
+2. Import repo in Vercel
+3. Add environment variables
+4. Deploy
+
+### Setup External Cron
+
+After deployment, configure external cron service to call `/api/cron/analyze` every 5 minutes with authorization header.
+
+## 📊 Smart Contract Integration
+
+Backend wallet executes swaps on behalf of users:
+- User deposits IDRX to smart contract
+- IDRX marked as "pending" with AI monitoring
+- When AI decides to BUY, backend calls `executeSmartBuy(userAddress, amount)`
+- Gold credited to user's on-chain balance
+- User can withdraw back to IDRX anytime
+
+## 🧪 Testing
+
+1. Get Mantle Sepolia testnet tokens from faucet
+2. Login with Privy (email/Google)
+3. Deposit IDRX
+4. Wait 5 minutes for AI analysis
+5. Check transaction history
+
+## 📝 License
+
+MIT
+
+- User deposits IDRX to smart contract
+- IDRX marked as "pending" with AI monitoring
+- When AI decides to BUY, backend calls `executeSmartBuy(userAddress, amount)`
+- Gold credited to user's on-chain balance
+- User can withdraw back to IDRX anytime
+
+## 🧪 Testing
+
+1. Get Mantle Sepolia testnet tokens from faucet
+2. Login with Privy (email/Google)
+3. Deposit IDRX
+4. Wait 5 minutes for AI analysis
+5. Check transaction history
+
+## 🌟 Features Overview
 
 ### Landing Page
-- Hero section dengan value proposition
-- Fitur-fitur AUREO
+- Hero section with amber gradient orbs
+- Features showcase
+- Privy authentication
 - How it works
 - CTA untuk login/signup
 

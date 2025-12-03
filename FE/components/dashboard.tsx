@@ -13,10 +13,10 @@ import { Sparkles, TrendingUp, Wallet, LogOut } from 'lucide-react';
 export default function Dashboard() {
   const { ready, authenticated, user, logout } = usePrivy();
   const router = useRouter();
-  const [goldBalance, setGoldBalance] = useState(2.45); // Mock data in grams
-  const [idrxPending, setIdrxPending] = useState(500000); // Mock pending IDRX
+  const [goldBalance, setGoldBalance] = useState(2.45);
+  const [idrxPending, setIdrxPending] = useState(500000);
   const [aiStatus, setAiStatus] = useState<'analyzing' | 'ready' | 'bought'>('ready');
-  const [goldPriceIDR, setGoldPriceIDR] = useState(1250000); // Mock: 1 gram = Rp 1,250,000
+  const [goldPriceIDR, setGoldPriceIDR] = useState(1250000);
 
   useEffect(() => {
     if (ready && !authenticated) {
@@ -28,7 +28,7 @@ export default function Dashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
-          <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
           <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
@@ -44,23 +44,19 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-900"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-amber-50/50 via-background to-orange-50/30 dark:from-background dark:via-amber-950/10 dark:to-background"></div>
       
-      {/* Animated Gradient Orbs */}
-      <div className="absolute top-20 right-0 w-96 h-96 bg-gray-300 dark:bg-gray-700 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-20 animate-pulse"></div>
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-gray-400 dark:bg-gray-600 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-20 animate-pulse" style={{animationDelay: '2s'}}></div>
+      <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-amber-200/30 dark:bg-amber-700/20 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-40 animate-pulse"></div>
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-orange-200/30 dark:bg-orange-700/20 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-40 animate-pulse" style={{animationDelay: '2s'}}></div>
       
-      {/* Content */}
       <div className="relative z-10">
-      {/* Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/70 dark:bg-gray-900/70 border-b border-gray-200/50 dark:border-gray-800/50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 dark:from-gray-200 dark:to-gray-300 flex items-center justify-center">
-              <span className="text-2xl font-bold text-white dark:text-gray-900">A</span>
+      <header className="sticky top-0 z-50 backdrop-blur-md bg-background/80 border-b border-border/60">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg">
+              <span className="text-xl font-bold text-white">A</span>
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 dark:from-white dark:via-gray-200 dark:to-white bg-clip-text text-transparent">
+            <span className="text-2xl font-bold bg-gradient-to-r from-amber-600 via-amber-500 to-orange-500 bg-clip-text text-transparent">
               AUREO
             </span>
           </div>
@@ -77,32 +73,32 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* Welcome Section */}
-        <div className="mb-8">
+      <div className="container mx-auto px-6 py-10 max-w-6xl">
+        <div className="mb-10">
           <h1 className="text-3xl font-bold mb-2">Welcome back!</h1>
           <p className="text-muted-foreground">Your intelligent gold wallet</p>
         </div>
 
-        {/* Main Balance Card */}
-        <Card className="mb-8 backdrop-blur-xl bg-white/60 dark:bg-gray-800/60 border-gray-300/50 dark:border-gray-600/50 shadow-2xl">
-          <CardHeader>
-            <CardDescription>Total Balance</CardDescription>
-            <div className="space-y-2">
-              <CardTitle className="text-5xl font-bold bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 dark:from-white dark:via-gray-200 dark:to-white bg-clip-text text-transparent">
-                {goldBalance.toFixed(3)} g
-              </CardTitle>
-              <div className="text-2xl text-muted-foreground">
+        <Card className="mb-8 backdrop-blur-sm bg-card/50 border-border/60 shadow-xl">
+          <CardHeader className="pb-4">
+            <CardDescription className="text-sm font-medium">Total Balance</CardDescription>
+            <div className="space-y-1 mt-2">
+              <div className="flex items-baseline gap-2">
+                <CardTitle className="text-6xl font-bold bg-gradient-to-r from-amber-600 via-amber-500 to-orange-500 bg-clip-text text-transparent tracking-tight">
+                  {goldBalance.toFixed(3)}
+                </CardTitle>
+                <span className="text-4xl font-semibold text-amber-600 dark:text-amber-400">g</span>
+              </div>
+              <div className="text-xl text-muted-foreground font-medium">
                 ≈ Rp {totalValueIDR.toLocaleString('id-ID')}
               </div>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="flex gap-4">
+          <CardContent className="pt-0">
+            <div className="flex gap-3">
               <DepositDialog onDeposit={(amount: number) => {
                 setIdrxPending(prev => prev + amount);
                 setAiStatus('analyzing');
-                // Simulate AI buying after 3 seconds
                 setTimeout(() => {
                   const goldBought = amount / goldPriceIDR;
                   setGoldBalance(prev => prev + goldBought);
@@ -111,7 +107,7 @@ export default function Dashboard() {
                   setTimeout(() => setAiStatus('ready'), 2000);
                 }, 3000);
               }}>
-                <Button size="lg" className="flex-1 bg-foreground hover:bg-foreground/90 text-background">
+                <Button size="lg" className="flex-1 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-lg shadow-amber-500/20 font-semibold">
                   <Wallet className="w-5 h-5 mr-2" />
                   Deposit
                 </Button>
@@ -124,22 +120,30 @@ export default function Dashboard() {
                   setGoldBalance(prev => prev - grams);
                 }}
               >
-                <Button size="lg" variant="outline" className="flex-1">
+                <Button size="lg" variant="outline" className="flex-1 border-amber-200 dark:border-amber-800 hover:bg-amber-50 dark:hover:bg-amber-950/30 font-semibold">
                   <TrendingUp className="w-5 h-5 mr-2" />
                   Withdraw
                 </Button>
               </WithdrawDialog>
             </div>
+
+            <div className="mt-6 pt-6 border-t border-border/60">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Wallet Address</span>
+                <code className="text-xs bg-secondary px-2 py-1 rounded">
+                  {user?.wallet?.address?.slice(0, 6)}...{user?.wallet?.address?.slice(-4)}
+                </code>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
         <div className="grid md:grid-cols-2 gap-6">
-          {/* AI Status Card */}
-          <Card className="border-border">
+          <Card className="backdrop-blur-sm bg-card/50 border-border/60 hover:shadow-lg hover:shadow-amber-500/5 transition-all duration-300">
             <CardHeader>
-              <CardTitle className="flex items-center justify-between">
+              <CardTitle className="flex items-center justify-between text-lg">
                 <span className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-foreground/70" />
+                  <Sparkles className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                   AI Agent Status
                 </span>
                 <div className={`w-3 h-3 rounded-full ${
@@ -153,18 +157,18 @@ export default function Dashboard() {
               {aiStatus === 'analyzing' && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-foreground">Analyzing market...</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
                     Our AI is monitoring gold prices to find the best entry point for your deposit.
                   </p>
                   <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
-                    <div className="h-full bg-foreground/70 animate-pulse" style={{width: '60%'}} />
+                    <div className="h-full bg-gradient-to-r from-amber-500 to-amber-600 animate-pulse" style={{width: '60%'}} />
                   </div>
                 </div>
               )}
               {aiStatus === 'bought' && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-foreground">✓ Purchase executed!</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
                     AI successfully bought gold at optimal price. Your balance has been updated.
                   </p>
                 </div>
@@ -172,7 +176,7 @@ export default function Dashboard() {
               {aiStatus === 'ready' && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Ready to optimize</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
                     AI is monitoring market 24/7. Make a deposit to start saving smarter.
                   </p>
                 </div>
@@ -180,17 +184,16 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* Pending Funds Card */}
-          <Card className="backdrop-blur-xl bg-white/60 dark:bg-gray-800/60 border-gray-300/50 dark:border-gray-600/50 shadow-xl hover:shadow-2xl transition-all duration-300">
+          <Card className="backdrop-blur-sm bg-card/50 border-border/60 hover:shadow-lg hover:shadow-amber-500/5 transition-all duration-300">
             <CardHeader>
-              <CardTitle>Pending Analysis</CardTitle>
+              <CardTitle className="text-lg">Pending Analysis</CardTitle>
               <CardDescription>Funds waiting for AI optimization</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold mb-2">
+              <div className="text-3xl font-bold mb-2 bg-gradient-to-r from-amber-600 to-orange-500 bg-clip-text text-transparent">
                 Rp {idrxPending.toLocaleString('id-ID')}
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 {idrxPending > 0 
                   ? 'AI will convert to gold at the best price'
                   : 'No pending funds. Make a deposit to start saving!'}
@@ -198,27 +201,25 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* Gold Price Card */}
-          <Card className="backdrop-blur-xl bg-white/60 dark:bg-gray-800/60 border-gray-300/50 dark:border-gray-600/50 shadow-xl hover:shadow-2xl transition-all duration-300">
+          <Card className="backdrop-blur-sm bg-card/50 border-border/60 hover:shadow-lg hover:shadow-amber-500/5 transition-all duration-300">
             <CardHeader>
-              <CardTitle>Current Gold Price</CardTitle>
+              <CardTitle className="text-lg">Current Gold Price</CardTitle>
               <CardDescription>Real-time via Pyth Network</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold mb-2">
+              <div className="text-3xl font-bold mb-2 bg-gradient-to-r from-amber-600 to-orange-500 bg-clip-text text-transparent">
                 Rp {goldPriceIDR.toLocaleString('id-ID')}
               </div>
-              <p className="text-sm text-foreground/70 flex items-center gap-1">
+              <p className="text-sm text-amber-600 dark:text-amber-400 flex items-center gap-1">
                 <TrendingUp className="w-4 h-4" />
                 +2.3% (24h)
               </p>
             </CardContent>
           </Card>
 
-          {/* Recent Activity Card */}
-          <Card className="backdrop-blur-xl bg-white/60 dark:bg-gray-800/60 border-gray-300/50 dark:border-gray-600/50 shadow-xl hover:shadow-2xl transition-all duration-300">
+          <Card className="backdrop-blur-sm bg-card/50 border-border/60 hover:shadow-lg hover:shadow-amber-500/5 transition-all duration-300">
             <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
+              <CardTitle className="text-lg">Recent Activity</CardTitle>
               <CardDescription>Your latest transactions</CardDescription>
             </CardHeader>
             <CardContent>
@@ -228,7 +229,7 @@ export default function Dashboard() {
                     <p className="font-medium">AI Purchase</p>
                     <p className="text-muted-foreground">2 hours ago</p>
                   </div>
-                  <p className="text-foreground font-medium">+0.80 g</p>
+                  <p className="text-amber-600 dark:text-amber-400 font-medium">+0.80 g</p>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <div>
@@ -242,7 +243,7 @@ export default function Dashboard() {
                     <p className="font-medium">AI Purchase</p>
                     <p className="text-muted-foreground">2 days ago</p>
                   </div>
-                  <p className="text-foreground font-medium">+1.65 g</p>
+                  <p className="text-amber-600 dark:text-amber-400 font-medium">+1.65 g</p>
                 </div>
               </div>
             </CardContent>
