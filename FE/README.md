@@ -17,14 +17,14 @@ Minimalist DeFi platform for smart gold investments using AI market analysis. Bu
 - **Storage**: In-memory (perfect for hackathon demo)
 - **AI**: Google Gemini for market analysis
 - **Price Feeds**: Pyth Network (XAU/USD)
-- **Package Manager**: Bun
+- **Package Manager**: npm
 
 ## 📦 Setup Instructions
 
 ### 1. Install Dependencies
 
 ```bash
-bun install
+npm install
 ```
 
 ### 2. Setup Environment Variables
@@ -58,7 +58,7 @@ CRON_SECRET=hackathon-demo-secret
 
 ```bash
 ```bash
-bun dev
+npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000)
