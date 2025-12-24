@@ -6,7 +6,6 @@ import { usePrivy } from '@privy-io/react-auth';
 import { MobileLayout } from '@/components/mobile-layout';
 import {
     ArrowLeft,
-    User,
     Shield,
     Bell,
     HelpCircle,
@@ -25,7 +24,12 @@ export default function ProfilePage() {
     const router = useRouter();
     const { ready, authenticated, user, logout } = usePrivy();
     const [copied, setCopied] = useState(false);
-    const [isDarkMode, setIsDarkMode] = useState(false);
+    const [isDarkMode, setIsDarkMode] = useState(() => {
+        if (typeof document !== 'undefined') {
+            return document.documentElement.classList.contains('dark');
+        }
+        return false;
+    });
 
     useEffect(() => {
         if (ready && !authenticated) {
@@ -33,11 +37,7 @@ export default function ProfilePage() {
         }
     }, [ready, authenticated, router]);
 
-    useEffect(() => {
-        // Check for dark mode preference
-        const isDark = document.documentElement.classList.contains('dark');
-        setIsDarkMode(isDark);
-    }, []);
+
 
     const toggleDarkMode = () => {
         const newMode = !isDarkMode;

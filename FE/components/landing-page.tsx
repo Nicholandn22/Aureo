@@ -6,7 +6,6 @@ import {
   Sparkles,
   Shield,
   Zap,
-  TrendingUp,
   ChevronRight,
   Wallet,
   ArrowRight

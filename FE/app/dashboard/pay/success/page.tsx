@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, ArrowLeft, Share2, Copy, Check } from 'lucide-react';
+import { CheckCircle, Share2, Copy, Check } from 'lucide-react';
 import { useState, Suspense } from 'react';
 
 function SuccessContent() {

@@ -10,7 +10,6 @@ import {
     ArrowDownLeft,
     Sparkles,
     Search,
-    Filter,
     Calendar,
     Loader2
 } from 'lucide-react';
@@ -200,8 +199,8 @@ export default function HistoryPage() {
                             key={f.id}
                             onClick={() => setFilter(f.id as typeof filter)}
                             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${filter === f.id
-                                    ? 'bg-primary text-white'
-                                    : 'bg-muted text-foreground hover:bg-secondary'
+                                ? 'bg-primary text-white'
+                                : 'bg-muted text-foreground hover:bg-secondary'
                                 }`}
                         >
                             {f.label}
@@ -230,8 +229,8 @@ export default function HistoryPage() {
                                     </div>
                                     <div className="text-right">
                                         <p className={`font-semibold ${tx.type === 'deposit' || tx.type === 'receive' || tx.type === 'ai_purchase'
-                                                ? 'text-green-500'
-                                                : 'text-foreground'
+                                            ? 'text-green-500'
+                                            : 'text-foreground'
                                             }`}>
                                             {tx.type === 'deposit' || tx.type === 'receive' || tx.type === 'ai_purchase' ? '+' : '-'}
                                             {tx.amount.toFixed(tx.unit === 'gram' ? 3 : 2)} {tx.unit === 'gram' ? 'g' : 'USDC'}

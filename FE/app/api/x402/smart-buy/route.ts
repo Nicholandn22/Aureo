@@ -105,7 +105,7 @@ async function executeSmartBuy(
         const receipt = await buyTx.wait();
 
         // Parse event to get gold received
-        const buyGoldEvent = receipt.logs.find((log: any) => {
+        const buyGoldEvent = receipt.logs.find((log: { topics: string[]; data: string }) => {
             try {
                 return aureoPool.interface.parseLog(log)?.name === 'BuyGold';
             } catch {

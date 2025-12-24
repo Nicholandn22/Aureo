@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { ethers, Eip1193Provider } from 'ethers';
 
 const AUREO_POOL_ADDRESS = process.env.NEXT_PUBLIC_AUREO_POOL_ADDRESS || '';
 const IDRX_TOKEN_ADDRESS = process.env.NEXT_PUBLIC_IDRX_TOKEN_ADDRESS || '';
@@ -26,7 +26,7 @@ export class ContractService {
   private provider: ethers.BrowserProvider | null = null;
   private signer: ethers.Signer | null = null;
 
-  async initialize(provider: any) {
+  async initialize(provider: Eip1193Provider) {
     this.provider = new ethers.BrowserProvider(provider);
     this.signer = await this.provider.getSigner();
   }
@@ -50,7 +50,7 @@ export class ContractService {
     const idrxContract = await this.getIDRXContract();
     const decimals = await idrxContract.decimals();
     const amountInWei = ethers.parseUnits(amount, decimals);
-    
+
     const tx = await idrxContract.approve(AUREO_POOL_ADDRESS, amountInWei);
     await tx.wait();
     return tx.hash;

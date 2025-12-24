@@ -8,7 +8,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ethers } from 'ethers';
 import {
     X402_CONFIG,
-    X402PaymentRequirement,
     parsePaymentHeader,
     generatePaymentRequirement
 } from './config';
@@ -25,8 +24,7 @@ const USDC_ABI = [
  */
 export async function validateX402Payment(
     request: NextRequest,
-    requiredAmount: number,
-    description: string
+    requiredAmount: number
 ): Promise<{ valid: boolean; error?: string; payer?: string }> {
     const paymentHeader = request.headers.get(X402_CONFIG.headers.payment);
 
@@ -162,7 +160,7 @@ export function withX402Protection(
         }
 
         // Validate payment
-        const validation = await validateX402Payment(request, amount, description);
+        const validation = await validateX402Payment(request, amount);
 
         if (!validation.valid) {
             if (validation.error === 'NO_PAYMENT') {

@@ -165,7 +165,6 @@ export function X402PaymentDialog({
  * Hook for managing x402 payment flow
  */
 export function useX402Payment() {
-    const [isPending, setIsPending] = useState(false);
     const [requirement, setRequirement] = useState<X402PaymentRequirement | null>(null);
     const [showDialog, setShowDialog] = useState(false);
     const [resolvePayment, setResolvePayment] = useState<((value: boolean) => void) | null>(null);
@@ -199,7 +198,6 @@ export function useX402Payment() {
     };
 
     return {
-        isPending,
         requirement,
         showDialog,
         requestPayment,

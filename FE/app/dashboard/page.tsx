@@ -2,20 +2,19 @@
 
 import { usePrivy } from '@privy-io/react-auth';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { MobileLayout } from '@/components/mobile-layout';
 import { WalletCard } from '@/components/wallet-card';
 import { QuickActions } from '@/components/quick-actions';
 import { DepositDialog } from '@/components/deposit-dialog';
 import { WithdrawDialog } from '@/components/withdraw-dialog';
 import { X402PaymentDialog, useX402Payment } from '@/components/x402-payment-dialog';
-import { Button } from '@/components/ui/button';
+
 import { x402Client, X402PaymentRequirement } from '@/lib/x402';
 import {
   Bell,
   Settings,
   TrendingUp,
-  TrendingDown,
   Sparkles,
   ArrowUpRight,
   ArrowDownLeft,
@@ -45,12 +44,12 @@ interface AIAnalysis {
 }
 
 export default function DashboardPage() {
-  const { ready, authenticated, user, logout } = usePrivy();
+  const { ready, authenticated, user } = usePrivy();
   const router = useRouter();
 
   const [goldBalance, setGoldBalance] = useState(2.450);
   const [usdcBalance, setUsdcBalance] = useState(150.00);
-  const [goldPriceUSD, setGoldPriceUSD] = useState(65.50);
+  const [goldPriceUSD] = useState(65.50);
   const [aiStatus, setAiStatus] = useState<'ready' | 'analyzing' | 'buying' | 'bought'>('ready');
   const [aiAnalysis, setAiAnalysis] = useState<AIAnalysis | null>(null);
   const [showDepositDialog, setShowDepositDialog] = useState(false);
@@ -105,7 +104,7 @@ export default function DashboardPage() {
       if (user?.wallet?.address && !x402Initialized) {
         try {
           // Get wallet provider from Privy
-          const walletProvider = (window as any).ethereum;
+          const walletProvider = (window as unknown as { ethereum?: { request: (args: { method: string; params?: unknown[] }) => Promise<unknown> } }).ethereum;
           if (walletProvider) {
             await x402Client.initialize(walletProvider);
             setX402Initialized(true);
@@ -326,14 +325,14 @@ export default function DashboardPage() {
         <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 rounded-2xl p-4 border border-amber-200/50 dark:border-amber-800/30">
           <div className="flex items-start gap-3">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${aiStatus === 'analyzing' ? 'bg-blue-100 dark:bg-blue-500/20' :
-                aiStatus === 'buying' ? 'bg-purple-100 dark:bg-purple-500/20' :
-                  aiStatus === 'bought' ? 'bg-green-100 dark:bg-green-500/20' :
-                    'bg-amber-100 dark:bg-amber-500/20'
+              aiStatus === 'buying' ? 'bg-purple-100 dark:bg-purple-500/20' :
+                aiStatus === 'bought' ? 'bg-green-100 dark:bg-green-500/20' :
+                  'bg-amber-100 dark:bg-amber-500/20'
               }`}>
               <Sparkles className={`w-5 h-5 ${aiStatus === 'analyzing' ? 'text-blue-500 animate-pulse' :
-                  aiStatus === 'buying' ? 'text-purple-500 animate-pulse' :
-                    aiStatus === 'bought' ? 'text-green-500' :
-                      'text-amber-500'
+                aiStatus === 'buying' ? 'text-purple-500 animate-pulse' :
+                  aiStatus === 'bought' ? 'text-green-500' :
+                    'text-amber-500'
                 }`} />
             </div>
             <div className="flex-1">
@@ -347,9 +346,9 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <span className={`text-xs px-2 py-1 rounded-full ${aiStatus === 'analyzing' ? 'bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400' :
-                    aiStatus === 'buying' ? 'bg-purple-100 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400' :
-                      aiStatus === 'bought' ? 'bg-green-100 text-green-600 dark:bg-green-500/20 dark:text-green-400' :
-                        'bg-gray-100 text-gray-600 dark:bg-gray-500/20 dark:text-gray-400'
+                  aiStatus === 'buying' ? 'bg-purple-100 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400' :
+                    aiStatus === 'bought' ? 'bg-green-100 text-green-600 dark:bg-green-500/20 dark:text-green-400' :
+                      'bg-gray-100 text-gray-600 dark:bg-gray-500/20 dark:text-gray-400'
                   }`}>
                   {aiStatus === 'analyzing' ? 'Analyzing' :
                     aiStatus === 'buying' ? 'Executing' :
@@ -375,7 +374,7 @@ export default function DashboardPage() {
               {(aiStatus === 'analyzing' || aiStatus === 'buying') && (
                 <div className="mt-3 h-1.5 bg-muted rounded-full overflow-hidden">
                   <div className={`h-full rounded-full animate-pulse ${aiStatus === 'buying' ? 'w-4/5 bg-gradient-to-r from-purple-500 to-purple-400' :
-                      'w-3/5 bg-gradient-to-r from-blue-500 to-blue-400'
+                    'w-3/5 bg-gradient-to-r from-blue-500 to-blue-400'
                     }`} />
                 </div>
               )}
@@ -445,8 +444,8 @@ export default function DashboardPage() {
                 </div>
                 <div className="text-right">
                   <p className={`font-semibold ${tx.type === 'deposit' || tx.type === 'receive' || tx.type === 'ai_purchase'
-                      ? 'text-green-500'
-                      : 'text-foreground'
+                    ? 'text-green-500'
+                    : 'text-foreground'
                     }`}>
                     {tx.type === 'deposit' || tx.type === 'receive' || tx.type === 'ai_purchase' ? '+' : '-'}
                     {tx.amount.toFixed(tx.unit === 'gram' ? 3 : 2)} {tx.unit === 'gram' ? 'g' : 'USDC'}

@@ -4,24 +4,15 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
 import { MobileLayout } from '@/components/mobile-layout';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
     ArrowLeft,
-    Sparkles,
-    Settings,
     TrendingUp,
-    TrendingDown,
     Zap,
     Clock,
-    CheckCircle,
-    XCircle,
     BarChart3,
     Sliders,
     Brain,
-    Target,
     Shield,
-    ChevronRight,
     Loader2
 } from 'lucide-react';
 
@@ -287,8 +278,8 @@ export default function AgentPage() {
                                         key={level}
                                         onClick={() => setRiskLevel(level)}
                                         className={`py-2 px-3 rounded-xl text-xs font-medium capitalize transition-colors ${riskLevel === level
-                                                ? 'bg-primary text-white'
-                                                : 'bg-muted text-foreground hover:bg-secondary'
+                                            ? 'bg-primary text-white'
+                                            : 'bg-muted text-foreground hover:bg-secondary'
                                             }`}
                                     >
                                         {level}
@@ -340,8 +331,8 @@ export default function AgentPage() {
                                 <div className="flex items-start justify-between mb-2">
                                     <div className="flex items-center gap-2">
                                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${exec.action === 'BUY'
-                                                ? 'bg-green-100 dark:bg-green-500/20'
-                                                : 'bg-amber-100 dark:bg-amber-500/20'
+                                            ? 'bg-green-100 dark:bg-green-500/20'
+                                            : 'bg-amber-100 dark:bg-amber-500/20'
                                             }`}>
                                             {exec.action === 'BUY' ? (
                                                 <TrendingUp className="w-4 h-4 text-green-500" />
@@ -353,10 +344,10 @@ export default function AgentPage() {
                                             <div className="flex items-center gap-2">
                                                 <span className="font-medium text-sm">{exec.action}</span>
                                                 <span className={`text-xs px-2 py-0.5 rounded-full ${exec.status === 'success'
-                                                        ? 'bg-green-100 text-green-600 dark:bg-green-500/20 dark:text-green-400'
-                                                        : exec.status === 'skipped'
-                                                            ? 'bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400'
-                                                            : 'bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400'
+                                                    ? 'bg-green-100 text-green-600 dark:bg-green-500/20 dark:text-green-400'
+                                                    : exec.status === 'skipped'
+                                                        ? 'bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400'
+                                                        : 'bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400'
                                                     }`}>
                                                     {exec.status}
                                                 </span>

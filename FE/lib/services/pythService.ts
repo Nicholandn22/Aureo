@@ -2,7 +2,18 @@ import axios from 'axios';
 
 const PYTH_API_URL = 'https://hermes.pyth.network/api/latest_price_feeds?ids[]=0x765d2ba906dbc32ca17cc11f5310a89e9ee1f6420508c63861f2f8ba4ee34bb2';
 
-let priceCache: { price: any; timestamp: number } | null = null;
+interface PythPriceData {
+  currentPrice: number;
+  confidence: number;
+  emaPrice: number;
+  high24h: number;
+  low24h: number;
+  change24h: number;
+  volatility: number;
+  timestamp: Date;
+}
+
+let priceCache: { price: PythPriceData; timestamp: number } | null = null;
 const CACHE_DURATION = 60000;
 
 export async function getPythGoldPrice() {

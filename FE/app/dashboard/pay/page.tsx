@@ -17,7 +17,6 @@ import {
     Check,
     AlertCircle,
     Loader2,
-    ScanLine,
     ChevronRight
 } from 'lucide-react';
 
@@ -66,7 +65,7 @@ export default function PayPage() {
             if (videoRef.current) {
                 videoRef.current.srcObject = stream;
             }
-        } catch (err) {
+        } catch {
             setError('Unable to access camera. Please grant camera permissions.');
             setIsScanning(false);
         }
@@ -107,7 +106,7 @@ export default function PayPage() {
 
             // Navigate to success page or show success state
             router.push(`/dashboard/pay/success?amount=${amount}&to=${recipientAddress}`);
-        } catch (err) {
+        } catch {
             setError('Transaction failed. Please try again.');
         } finally {
             setIsSending(false);
@@ -188,8 +187,8 @@ export default function PayPage() {
                     <button
                         onClick={() => setMode('scan')}
                         className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-medium transition-colors ${mode === 'scan'
-                                ? 'bg-white text-primary'
-                                : 'text-white/80 hover:text-white'
+                            ? 'bg-white text-primary'
+                            : 'text-white/80 hover:text-white'
                             }`}
                     >
                         <QrCode className="w-5 h-5" />
@@ -198,8 +197,8 @@ export default function PayPage() {
                     <button
                         onClick={() => setMode('send')}
                         className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-medium transition-colors ${mode === 'send'
-                                ? 'bg-white text-primary'
-                                : 'text-white/80 hover:text-white'
+                            ? 'bg-white text-primary'
+                            : 'text-white/80 hover:text-white'
                             }`}
                     >
                         <Send className="w-5 h-5" />
@@ -310,8 +309,8 @@ export default function PayPage() {
                                             key={amt}
                                             onClick={() => setAmount(amt.toString())}
                                             className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${amount === amt.toString()
-                                                    ? 'bg-primary text-white'
-                                                    : 'bg-muted hover:bg-secondary text-foreground'
+                                                ? 'bg-primary text-white'
+                                                : 'bg-muted hover:bg-secondary text-foreground'
                                                 }`}
                                         >
                                             ${amt}

@@ -4,7 +4,7 @@
  * Handles signing and sending x402 payments for premium AI services
  */
 
-import { ethers } from 'ethers';
+import { ethers, Eip1193Provider } from 'ethers';
 import {
     X402_CONFIG,
     X402Payment,
@@ -35,7 +35,7 @@ export class X402PaymentClient {
     /**
      * Initialize with wallet provider (e.g., from Privy)
      */
-    async initialize(walletProvider: any) {
+    async initialize(walletProvider: Eip1193Provider) {
         this.provider = new ethers.BrowserProvider(walletProvider);
         this.signer = await this.provider.getSigner();
     }

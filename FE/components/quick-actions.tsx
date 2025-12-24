@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowUpRight, ArrowDownLeft, Repeat, Plus, Send, QrCode, Receipt, Wallet } from 'lucide-react';
+import { ArrowUpRight, Plus, Send, QrCode } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface QuickAction {
@@ -17,10 +17,9 @@ interface QuickActionsProps {
     onDeposit?: () => void;
     onWithdraw?: () => void;
     onSend?: () => void;
-    onReceive?: () => void;
 }
 
-export function QuickActions({ onDeposit, onWithdraw, onSend, onReceive }: QuickActionsProps) {
+export function QuickActions({ onDeposit, onWithdraw, onSend }: QuickActionsProps) {
     const router = useRouter();
 
     const actions: QuickAction[] = [
