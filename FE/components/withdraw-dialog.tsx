@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { TrendingUp, AlertCircle } from 'lucide-react';
+import { TrendingUp, AlertCircle, Loader2 } from 'lucide-react';
 
 interface WithdrawDialogProps {
   children: React.ReactNode;
@@ -26,7 +26,9 @@ export function WithdrawDialog({ children, goldBalance, goldPriceIDR, onWithdraw
   const [grams, setGrams] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const idrxAmount = parseFloat(grams) * goldPriceIDR;
+  // Convert IDR to USD (approximate)
+  const goldPriceUSD = goldPriceIDR / 15000;
+  const usdcAmount = parseFloat(grams) * goldPriceUSD;
   const isValidAmount = parseFloat(grams) > 0 && parseFloat(grams) <= goldBalance;
 
   const quickPercentages = [25, 50, 75, 100];
@@ -47,25 +49,23 @@ export function WithdrawDialog({ children, goldBalance, goldPriceIDR, onWithdraw
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-md backdrop-blur-sm bg-card/95 border-border/60">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl">
-            <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 dark:from-amber-500/20 dark:to-orange-500/20 flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-            </span>
-            Withdraw to IDRX
-          </DialogTitle>
+      <DialogContent className="sm:max-w-md rounded-3xl border-border bg-card">
+        <DialogHeader className="text-left">
+          <div className="w-14 h-14 rounded-2xl bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center mb-4">
+            <TrendingUp className="w-7 h-7 text-amber-500" />
+          </div>
+          <DialogTitle className="text-xl">Withdraw</DialogTitle>
           <DialogDescription className="leading-relaxed">
-            Convert your gold balance to IDRX. Instant conversion at current market price.
+            Convert your gold balance to USDC instantly at current market price.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5 py-4">
-          <div className="bg-secondary/50 rounded-xl p-4 space-y-1">
+          <div className="bg-muted rounded-2xl p-4">
             <div className="text-sm text-muted-foreground">Available Balance</div>
-            <div className="text-xl font-bold">{goldBalance.toFixed(3)} g</div>
-            <div className="text-sm text-muted-foreground">
-              ≈ Rp {(goldBalance * goldPriceIDR).toLocaleString('id-ID')}
+            <div className="text-2xl font-bold mt-1">{goldBalance.toFixed(3)} g</div>
+            <div className="text-sm text-muted-foreground mt-1">
+              ≈ ${(goldBalance * goldPriceUSD).toFixed(2)} USDC
             </div>
           </div>
 
@@ -77,10 +77,10 @@ export function WithdrawDialog({ children, goldBalance, goldPriceIDR, onWithdraw
                 placeholder="0.000"
                 value={grams}
                 onChange={(e) => setGrams(e.target.value)}
-                className="pr-10 text-lg"
+                className="pr-10 py-6 text-2xl font-semibold rounded-xl"
                 step="0.001"
               />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-lg font-medium text-muted-foreground">
                 g
               </span>
             </div>
@@ -95,7 +95,10 @@ export function WithdrawDialog({ children, goldBalance, goldPriceIDR, onWithdraw
                   variant="outline"
                   size="sm"
                   onClick={() => setGrams(((goldBalance * pct) / 100).toFixed(3))}
-                  className="font-normal border-border/60 hover:bg-amber-50 dark:hover:bg-amber-950/20"
+                  className={`font-medium rounded-xl py-5 ${grams === ((goldBalance * pct) / 100).toFixed(3)
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border hover:bg-muted'
+                    }`}
                 >
                   {pct}%
                 </Button>
@@ -105,45 +108,31 @@ export function WithdrawDialog({ children, goldBalance, goldPriceIDR, onWithdraw
 
           {grams && parseFloat(grams) > 0 && (
             <>
-              <div className="bg-secondary/50 rounded-xl p-4 space-y-2">
+              <div className="bg-muted rounded-2xl p-4 space-y-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Gold to withdraw</span>
                   <span className="font-medium">{parseFloat(grams).toFixed(3)} g</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Current price</span>
-                  <span className="font-medium">Rp {goldPriceIDR.toLocaleString('id-ID')}/g</span>
+                  <span className="font-medium">${goldPriceUSD.toFixed(2)}/g</span>
                 </div>
-                <div className="border-t border-border pt-2 mt-2">
+                <div className="border-t border-border pt-3">
                   <div className="flex justify-between">
                     <span className="font-medium">You will receive</span>
-                    <span className="font-bold text-lg bg-gradient-to-r from-amber-600 to-orange-500 bg-clip-text text-transparent">
-                      Rp {idrxAmount.toLocaleString('id-ID')}
+                    <span className="font-bold text-xl text-green-500">
+                      ${usdcAmount.toFixed(2)} USDC
                     </span>
                   </div>
                 </div>
               </div>
 
               {!isValidAmount && parseFloat(grams) > goldBalance && (
-                <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-3 flex items-start gap-2">
-                  <AlertCircle className="w-5 h-5 text-destructive mt-0.5 shrink-0" />
-                  <div className="space-y-1 text-sm">
-                    <p className="font-medium text-destructive">Insufficient Balance</p>
-                    <p className="text-muted-foreground">
-                      You only have {goldBalance.toFixed(3)} grams available.
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {isValidAmount && (
-                <div className="bg-gradient-to-br from-amber-50/80 to-orange-50/80 dark:from-amber-950/20 dark:to-orange-950/20 border border-amber-200/50 dark:border-amber-800/30 rounded-xl p-3 flex items-start gap-2">
-                  <TrendingUp className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
-                  <div className="space-y-1 text-sm">
-                    <p className="font-medium text-foreground">Instant Conversion</p>
-                    <p className="text-muted-foreground leading-relaxed">
-                      Your gold will be instantly converted to IDRX at the current market rate.
-                    </p>
+                <div className="flex items-center gap-2 text-red-500 text-sm bg-red-50 dark:bg-red-500/10 p-4 rounded-xl">
+                  <AlertCircle className="w-5 h-5 shrink-0" />
+                  <div>
+                    <p className="font-medium">Insufficient Balance</p>
+                    <p className="text-red-400">You only have {goldBalance.toFixed(3)} grams.</p>
                   </div>
                 </div>
               )}
@@ -159,16 +148,23 @@ export function WithdrawDialog({ children, goldBalance, goldPriceIDR, onWithdraw
               setGrams('');
             }}
             disabled={isProcessing}
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto rounded-xl py-5"
           >
             Cancel
           </Button>
           <Button
             onClick={handleWithdraw}
             disabled={!isValidAmount || isProcessing}
-            className="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-lg shadow-amber-500/20"
+            className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-white rounded-xl py-5"
           >
-            {isProcessing ? 'Processing...' : 'Withdraw Now'}
+            {isProcessing ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              'Withdraw Now'
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

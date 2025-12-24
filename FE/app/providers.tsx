@@ -4,7 +4,7 @@ import { PrivyProvider } from '@privy-io/react-auth';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const privyAppId = process.env.NEXT_PUBLIC_PRIVY_APP_ID;
-  
+
   if (!privyAppId) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -23,9 +23,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
           </div>
           <p className="text-sm text-muted-foreground">
             Get your App ID from{' '}
-            <a 
-              href="https://dashboard.privy.io" 
-              target="_blank" 
+            <a
+              href="https://dashboard.privy.io"
+              target="_blank"
               rel="noopener noreferrer"
               className="text-amber-600 dark:text-amber-400 hover:underline"
             >
@@ -70,7 +70,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         loginMethods: ['email', 'wallet', 'google'],
         appearance: {
           theme: 'light',
-          accentColor: '#f59e0b',
+          accentColor: '#0066FF',
           logo: '/aureo-logo.png',
         },
         defaultChain: mantleSepolia,
