@@ -53,7 +53,7 @@ cast send $USDC "mint(address,uint256)" $MY_WALLET 1000000000 \
   --private-key $PRIVATE_KEY
 ```
 
-### 3. Buy Gold (mGOLD)
+### 3. Buy Gold (mGOLD) with Slippage Protection
 Buying Gold requires two steps: **Approve** and **Buy**.
 
 **Step A: Approve Pool to spend your USDC**
@@ -65,10 +65,12 @@ cast send $USDC "approve(address,uint256)" $POOL 1000000000 \
 ```
 
 **Step B: Execute Buy Transaction**
-Buy Gold worth 10 USDC.
+Buy Gold worth 10 USDC with 5% slippage tolerance.
 ```bash
 # Amount: 10 USDC = 10,000,000 (6 decimals)
-cast send $POOL "buyGold(uint256)" 10000000 \
+# Min Gold Out: Set to 0 for no slippage protection, or calculate expected amount
+# For 5% slippage: if expecting 0.01 gold, set min = 0.0095 gold = 9500000000000000
+cast send $POOL "buyGold(uint256,uint256)" 10000000 0 \
   --rpc-url $MANTLE_RPC_URL \
   --private-key $PRIVATE_KEY
 ```
@@ -80,7 +82,7 @@ Verify that you received the Gold.
 cast call $GOLD "balanceOf(address)" $MY_WALLET --rpc-url $MANTLE_RPC_URL | cast --to-dec
 ```
 
-### 5. Sell Gold (mGOLD)
+### 5. Sell Gold (mGOLD) with Slippage Protection
 Selling also requires two steps: **Approve** and **Sell**.
 
 **Step A: Approve Pool to take your Gold**
@@ -93,11 +95,14 @@ cast send $GOLD "approve(address,uint256)" $POOL 10000000000000000 \
 ```
 
 **Step B: Execute Sell Transaction**
-Sell 0.01 Gold back for USDC.
+Sell 0.01 Gold back for USDC with slippage protection.
 ```bash
-cast send $POOL "sellGold(uint256)" 10000000000000000 \
+# Min USDC Out: Set to 0 for no protection, or calculate expected amount
+# For 5% slippage: if expecting 10 USDC, set min = 9.5 USDC = 9500000
+cast send $POOL "sellGold(uint256,uint256)" 10000000000000000 0 \
   --rpc-url $MANTLE_RPC_URL \
   --private-key $PRIVATE_KEY
+```
 ```
 
 ### 6. Check Price
@@ -120,19 +125,29 @@ The protocol consists of three main components:
 ### 1. AureoRWAPool.sol
 The main interaction point for users.
 
-*   **`buyGold(uint256 _usdcAmount)`**
-    *   **Description:** Allows users to purchase synthetic gold (`mGOLD`) using `USDC`.
-    *   **Logic:** Transfers USDC from the user to the Pool, calculates the gold amount based on the real-time XAU/USD price from Pyth, and mints `mGOLD` to the user.
+*   **`buyGold(uint256 _usdcAmount, uint256 _minGoldOut)`**
+    *   **Description:** Allows users to purchase synthetic gold (`mGOLD`) using `USDC` with slippage protection.
+    *   **Parameters:**
+        *   `_usdcAmount`: Amount of USDC to spend (6 decimals)
+        *   `_minGoldOut`: Minimum amount of mGOLD expected (18 decimals) - protects against price manipulation
+    *   **Logic:** Transfers USDC from the user to the Pool, calculates the gold amount based on the real-time XAU/USD price from Pyth, validates slippage protection, and mints `mGOLD` to the user.
     *   **Requirement:** User must approve the Pool to spend their USDC first.
+    *   **Security:** Reverts if goldAmount < _minGoldOut ("Slippage too high")
 
-*   **`sellGold(uint256 _goldAmount)`**
-    *   **Description:** Allows users to redeem their `mGOLD` back for `USDC`.
-    *   **Logic:** Transfers `mGOLD` from the user to the Pool, burns it, calculates the USDC value based on current oracle prices, and transfers USDC from the Pool's liquidity to the user.
+*   **`sellGold(uint256 _goldAmount, uint256 _minUsdcOut)`**
+    *   **Description:** Allows users to redeem their `mGOLD` back for `USDC` with slippage protection.
+    *   **Parameters:**
+        *   `_goldAmount`: Amount of mGOLD to sell (18 decimals)
+        *   `_minUsdcOut`: Minimum amount of USDC expected (6 decimals) - protects against price manipulation
+    *   **Logic:** Transfers `mGOLD` from the user to the Pool, burns it, calculates the USDC value based on current oracle prices, validates slippage protection, and transfers USDC from the Pool's liquidity to the user.
     *   **Requirement:** Pool must have sufficient USDC liquidity.
+    *   **Security:** Reverts if usdcAmount < _minUsdcOut ("Slippage too high")
 
 *   **`getGoldPrice18Decimals()`**
     *   **Description:** A view function that fetches the latest Gold price from the Pyth Network Oracle.
-    *   **Logic:** Normalizes the price exponent to standard 18 decimals for precision in calculations. Ensures price data is no older than 60 seconds.
+    *   **Logic:** Normalizes the price exponent to standard 18 decimals for precision in calculations. 
+    *   **Security:** Uses `getPriceNoOlderThan(goldPriceId, 60)` to ensure price data is no older than 60 seconds.
+    *   **Validation:** Reverts if price <= 0 ("Invalid Oracle Price")
 
 ### 2. MockTokens.sol
 
@@ -142,6 +157,63 @@ The main interaction point for users.
 
 *   **`MockGold`**
     *   **Type:** ERC20 (18 Decimals).
+    *   **Function `burn(address from, uint256 amount)`:** Burns tokens with allowance check - prevents malicious burning.
+    *   **Function `burn(uint256 amount)`:** Burns caller's own tokens.
+    *   **Security:** Requires approval to burn tokens from other addresses.
+
+## 🔐 Security Features
+
+### Recent Security Improvements (v2.0)
+
+As of the latest update, Aureo Protocol has been hardened against common DeFi attack vectors:
+
+#### 1. **Slippage Protection** 🛡️
+- **Problem:** Front-runners could manipulate oracle prices before user transactions execute
+- **Solution:** `buyGold` and `sellGold` now require minimum output amounts
+- **Impact:** Users protected from MEV attacks and price manipulation
+- **Example:**
+  ```solidity
+  // User expects 1.0 mGOLD at current price
+  // Sets 5% slippage tolerance (min 0.95 mGOLD)
+  pool.buyGold(2000e6, 0.95e18); // Reverts if < 0.95 mGOLD
+  ```
+
+#### 2. **Oracle Staleness Check** ⏰
+- **Problem:** Using outdated oracle prices could lead to unfair trades
+- **Solution:** `getPriceNoOlderThan(goldPriceId, 60)` enforces 60-second freshness
+- **Impact:** All trades use recent, accurate gold prices
+- **Protection:** Reverts with "StalePrice" if oracle data > 60 seconds old
+
+#### 3. **Burn Vulnerability Fix** 🔥
+- **Problem:** Previous version allowed anyone to burn anyone's tokens
+- **Solution:** Burn function now requires allowance check
+- **Impact:** Users' mGOLD tokens are protected from malicious burn attacks
+- **Implementation:**
+  ```solidity
+  function burn(address from, uint256 amount) public {
+      if (from != msg.sender) {
+          _spendAllowance(from, msg.sender, amount);
+      }
+      _burn(from, amount);
+  }
+  ```
+
+### Security Best Practices
+
+When integrating with Aureo:
+
+1. **Always Set Slippage:** Never use `0` for minOut in production - calculate realistic minimum based on current price
+2. **Monitor Oracle:** Verify oracle is functioning before large trades
+3. **Check Pool Liquidity:** Ensure pool has sufficient USDC before selling large amounts
+4. **Use Allowances Properly:** Only approve exact amounts needed for transactions
+5. **Test on Testnet:** Always test integration on Mantle Sepolia before mainnet
+
+### Audit Status
+
+- **Status:** ⚠️ Not yet audited
+- **Scope:** Smart contracts in `src/` directory
+- **Recommendation:** Professional audit recommended before mainnet deployment
+- **Test Coverage:** 30 comprehensive tests covering security scenarios
 
 ## 🛠 Prerequisites
 

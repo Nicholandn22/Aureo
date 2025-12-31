@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aureo - How It Works | Gold Tokenization Protocol</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: #ffffff;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            padding: 40px 0;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
+        }
+
+        h1 {
+            font-size: 3em;
+            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            font-size: 1.2em;
+            color: #94a3b8;
+            margin-bottom: 30px;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .hero h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.3em;
+            color: #cbd5e1;
+            max-width: 800px;
+            margin: 0 auto 40px;
+        }
+
+        /* How It Works Section */
+        .section {
+            margin: 80px 0;
+        }
+
+        .section-title {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #f59e0b, #fbbf24);
+            margin: 20px auto 0;
+            border-radius: 2px;
+        }
+
+        /* Flow Diagram */
+        .flow-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .flow-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .flow-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(245, 158, 11, 0.2);
+            border-color: #f59e0b;
+        }
+
+        .flow-number {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
+        }
+
+        .flow-card h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: #fbbf24;
+        }
+
+        .flow-card p {
+            color: #cbd5e1;
+            font-size: 1.05em;
+        }
+
+        /* Interactive Example */
+        .interactive-demo {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 50px;
+            margin: 60px 0;
+        }
+
+        .demo-title {
+            font-size: 2em;
+            text-align: center;
+            margin-bottom: 40px;
+            color: #fbbf24;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 30px;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .demo-card {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .demo-card h4 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            color: #fbbf24;
+        }
+
+        .demo-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #10b981;
+            margin: 10px 0;
+        }
+
+        .arrow {
+            font-size: 3em;
+            color: #f59e0b;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Security Features */
+        .security-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .security-card {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.05));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            transition: all 0.3s ease;
+        }
+
+        .security-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 20px 50px rgba(245, 158, 11, 0.3);
+        }
+
+        .security-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .security-card h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: #fbbf24;
+        }
+
+        .security-card p {
+            color: #cbd5e1;
+            line-height: 1.8;
+        }
+
+        /* Code Block */
+        .code-block {
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            color: #e2e8f0;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .code-comment {
+            color: #64748b;
+        }
+
+        .code-keyword {
+            color: #f59e0b;
+        }
+
+        .code-function {
+            color: #10b981;
+        }
+
+        .code-number {
+            color: #8b5cf6;
+        }
+
+        /* Stats Section */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin: 60px 0;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+        }
+
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: #cbd5e1;
+            margin-top: 10px;
+            font-size: 1.1em;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            padding: 80px 20px;
+            background: rgba(245, 158, 11, 0.1);
+            border-radius: 20px;
+            margin: 80px 0;
+        }
+
+        .cta-section h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+
+        .btn {
+            padding: 18px 40px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(245, 158, 11, 0.5);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #fbbf24;
+            border: 2px solid #f59e0b;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(245, 158, 11, 0.1);
+            transform: translateY(-3px);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            margin-top: 80px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .hero h2 {
+                font-size: 1.8em;
+            }
+
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .arrow {
+                transform: rotate(90deg);
+            }
+
+            .section-title {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <div class="logo-icon">Au</div>
+                <h1>Aureo</h1>
+            </div>
+            <p class="tagline">Real-World Asset Protocol for Gold Tokenization</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Hero -->
+        <section class="hero">
+            <h2>Trade Physical Gold on the Blockchain</h2>
+            <p>Aureo enables you to buy, sell, and trade tokenized gold (mGOLD) using USDC stablecoin on Mantle Network. Powered by Pyth Oracle for real-time gold prices.</p>
+        </section>
+
+        <!-- Stats -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">3</div>
+                <div class="stat-label">Security Fixes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">30</div>
+                <div class="stat-label">Comprehensive Tests</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Gasless Transactions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">60s</div>
+                <div class="stat-label">Oracle Freshness</div>
+            </div>
+        </section>
+
+        <!-- How It Works -->
+        <section class="section">
+            <h2 class="section-title">How It Works</h2>
+            
+            <div class="flow-container">
+                <div class="flow-card">
+                    <div class="flow-number">1</div>
+                    <h3>Connect Wallet</h3>
+                    <p>Connect your wallet with USDC to the Aureo Pool on Mantle Sepolia</p>
+                </div>
+                
+                <div class="flow-card">
+                    <div class="flow-number">2</div>
+                    <h3>Check Price</h3>
+                    <p>Pyth Oracle provides real-time XAU/USD prices updated every second</p>
+                </div>
+                
+                <div class="flow-card">
+                    <div class="flow-number">3</div>
+                    <h3>Buy Gold</h3>
+                    <p>Swap USDC for mGOLD tokens at current market price with slippage protection</p>
+                </div>
+                
+                <div class="flow-card">
+                    <div class="flow-number">4</div>
+                    <h3>Hold or Trade</h3>
+                    <p>Your mGOLD represents real gold ownership - hold for appreciation or trade anytime</p>
+                </div>
+                
+                <div class="flow-card">
+                    <div class="flow-number">5</div>
+                    <h3>Sell Gold</h3>
+                    <p>Redeem mGOLD for USDC at current market price whenever you want</p>
+                </div>
+                
+                <div class="flow-card">
+                    <div class="flow-number">6</div>
+                    <h3>Take Profit</h3>
+                    <p>Receive USDC back to your wallet - profit from gold price movements!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Demo -->
+        <section class="interactive-demo">
+            <h3 class="demo-title">💰 Example: Alice's Trade</h3>
+            
+            <div class="demo-grid">
+                <div class="demo-card">
+                    <h4>📊 Initial State</h4>
+                    <p>Alice has:</p>
+                    <div class="demo-value">$5,000 USDC</div>
+                    <p>Gold Price:</p>
+                    <div class="demo-value">$2,000/oz</div>
+                </div>
+                
+                <div class="arrow">→</div>
+                
+                <div class="demo-card">
+                    <h4>💎 Buy Gold</h4>
+                    <p>Alice spends:</p>
+                    <div class="demo-value">$2,000 USDC</div>
+                    <p>Alice receives:</p>
+                    <div class="demo-value">1.0 mGOLD</div>
+                </div>
+            </div>
+            
+            <div class="demo-grid" style="margin-top: 40px;">
+                <div class="demo-card">
+                    <h4>📈 Price Increases</h4>
+                    <p>New Gold Price:</p>
+                    <div class="demo-value">$2,200/oz</div>
+                    <p>Value of 1.0 mGOLD:</p>
+                    <div class="demo-value">$2,200</div>
+                </div>
+                
+                <div class="arrow">→</div>
+                
+                <div class="demo-card">
+                    <h4>🎉 Sell & Profit</h4>
+                    <p>Alice sells 1.0 mGOLD:</p>
+                    <div class="demo-value">$2,200 USDC</div>
+                    <p style="color: #10b981; font-size: 1.3em; margin-top: 10px;">
+                        <strong>Profit: +$200! (10%)</strong>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Security Features -->
+        <section class="section">
+            <h2 class="section-title">🔐 Built-In Security</h2>
+            
+            <div class="security-grid">
+                <div class="security-card">
+                    <div class="security-icon">🛡️</div>
+                    <h3>Slippage Protection</h3>
+                    <p>Set minimum amounts for trades to protect against price manipulation and front-running attacks. Your transaction reverts if the price moves unfavorably.</p>
+                </div>
+                
+                <div class="security-card">
+                    <div class="security-icon">⏰</div>
+                    <h3>Fresh Oracle Data</h3>
+                    <p>All trades use oracle prices no older than 60 seconds. Stale price data is automatically rejected to ensure fair market value.</p>
+                </div>
+                
+                <div class="security-card">
+                    <div class="security-icon">🔥</div>
+                    <h3>Burn Protection</h3>
+                    <p>Your mGOLD tokens are protected from malicious burn attacks. Only you or approved addresses can burn your tokens.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Code Example -->
+        <section class="section">
+            <h2 class="section-title">💻 Code Example</h2>
+            
+            <div class="code-block">
+                <pre><span class="code-comment">// Buy 2,000 USDC worth of gold with 5% slippage tolerance</span>
+<span class="code-keyword">uint256</span> usdcAmount = <span class="code-number">2000</span> * <span class="code-number">1e6</span>;  <span class="code-comment">// 2,000 USDC (6 decimals)</span>
+<span class="code-keyword">uint256</span> minGoldOut = <span class="code-number">0.95</span> <span class="code-keyword">ether</span>;    <span class="code-comment">// Minimum 0.95 mGOLD expected</span>
+
+<span class="code-comment">// Approve pool to spend USDC</span>
+usdc.<span class="code-function">approve</span>(aureoPool, usdcAmount);
+
+<span class="code-comment">// Execute buy with slippage protection</span>
+aureoPool.<span class="code-function">buyGold</span>(usdcAmount, minGoldOut);
+
+<span class="code-comment">// ✅ Alice receives 1.0 mGOLD (if price is ~$2000)</span>
+<span class="code-comment">// ❌ Reverts if she would get < 0.95 mGOLD</span></pre>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="cta-section">
+            <h2>Ready to Start Trading Gold?</h2>
+            <p style="font-size: 1.2em; color: #cbd5e1; margin-top: 20px;">
+                Join Aureo on Mantle Sepolia testnet and experience the future of RWA tokenization
+            </p>
+            
+            <div class="cta-buttons">
+                <a href="https://github.com/Nicholandn22/Aureo" class="btn btn-primary" target="_blank">
+                    View on GitHub
+                </a>
+                <a href="https://explorer.sepolia.mantle.xyz/address/0x475F5c184D23D5839123e7CDB23273eF0470C018" class="btn btn-secondary" target="_blank">
+                    View Contract
+                </a>
+            </div>
+        </section>
+
+        <!-- Technical Details -->
+        <section class="section">
+            <h2 class="section-title">🔧 Technical Details</h2>
+            
+            <div class="flow-container">
+                <div class="flow-card">
+                    <h3>Network</h3>
+                    <p>Mantle Sepolia Testnet</p>
+                    <p style="color: #64748b; font-size: 0.9em; margin-top: 10px;">Chain ID: 5003</p>
+                </div>
+                
+                <div class="flow-card">
+                    <h3>Oracle</h3>
+                    <p>Pyth Network</p>
+                    <p style="color: #64748b; font-size: 0.9em; margin-top: 10px;">60s max staleness</p>
+                </div>
+                
+                <div class="flow-card">
+                    <h3>Tokens</h3>
+                    <p>USDC (6 decimals)</p>
+                    <p>mGOLD  (18 decimals)</p>
+                </div>
+                
+                <div class="flow-card">
+                    <h3>Security</h3>
+                    <p>30 comprehensive tests</p>
+                    <p style="color: #64748b; font-size: 0.9em; margin-top: 10px;">Slippage protection enabled</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Aureo Protocol. Built on Mantle Network with ❤️</p>
+            <p style="margin-top: 10px; color: #64748b;">
+                Powered by ZeroDev • Pyth Oracle • Privy
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Add smooth scroll behavior
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Animate numbers on scroll
+        const observerOptions = {
+            threshold: 0.5,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.flow-card, .security-card, .stat-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'all 0.6s ease';
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>

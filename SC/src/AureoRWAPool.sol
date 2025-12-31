@@ -41,8 +41,8 @@ contract AureoRWAPool is Ownable {
 
     // --- HELPER: Normalize Pyth Price to 18 Decimals ---
     function getGoldPrice18Decimals() public view returns (uint256) {
-        // Ambil harga (Tanpa batas waktu/staleness untuk Testnet)
-        PythStructs.Price memory price = pyth.getPriceUnsafe(goldPriceId);
+        // Ambil harga dengan validasi staleness (max 60 detik)
+        PythStructs.Price memory price = pyth.getPriceNoOlderThan(goldPriceId, 60);
         require(price.price > 0, "Invalid Oracle Price");
 
         int256 priceVal = int256(price.price);
@@ -61,7 +61,7 @@ contract AureoRWAPool is Ownable {
     }
 
     // --- FITUR 1: BELI EMAS (USDC -> mGOLD) ---
-    function buyGold(uint256 _usdcAmount) external {
+    function buyGold(uint256 _usdcAmount, uint256 _minGoldOut) external {
         require(_usdcAmount > 0, "Amount 0");
 
         // 1. Tarik USDC User (Pastikan user sudah Approve)
@@ -74,15 +74,18 @@ contract AureoRWAPool is Ownable {
         // Rumus: (USDC * 1e12 * 1e18) / Price
         uint256 usdcValue18 = _usdcAmount * 1e12; 
         uint256 goldAmount = (usdcValue18 * 1e18) / currentPrice;
+        
+        // 4. Slippage Protection
+        require(goldAmount >= _minGoldOut, "Slippage too high");
 
-        // 4. Cetak Emas ke User
+        // 5. Cetak Emas ke User
         mGold.mint(msg.sender, goldAmount);
 
         emit BuyGold(msg.sender, _usdcAmount, goldAmount, currentPrice);
     }
 
     // --- FITUR 2: JUAL EMAS (mGOLD -> USDC) ---
-    function sellGold(uint256 _goldAmount) external {
+    function sellGold(uint256 _goldAmount, uint256 _minUsdcOut) external {
         require(_goldAmount > 0, "Amount 0");
         require(mGold.balanceOf(msg.sender) >= _goldAmount, "Saldo Emas Kurang");
 
@@ -97,8 +100,11 @@ contract AureoRWAPool is Ownable {
         // Rumus: (Gold * Price) / 1e18 -> Hasilnya 18 dec -> Bagi 1e12 jadi 6 dec
         uint256 usdValue18 = (_goldAmount * currentPrice) / 1e18;
         uint256 usdcAmount = usdValue18 / 1e12;
+        
+        // 4. Slippage Protection
+        require(usdcAmount >= _minUsdcOut, "Slippage too high");
 
-        // 4. Cek Likuiditas Pool & Transfer
+        // 5. Cek Likuiditas Pool & Transfer
         require(usdc.balanceOf(address(this)) >= usdcAmount, "Pool Kurang USDC");
         usdc.safeTransfer(msg.sender, usdcAmount);
 
