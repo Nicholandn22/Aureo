@@ -6,70 +6,70 @@
 :root {
   /* Light-first Fintech Theme */
   --radius: 1rem;
-  
+
   /* Primary colors - Professional Blue/Teal for Fintech */
-  --primary: #0066FF;
-  --primary-foreground: #FFFFFF;
-  --primary-light: #E6F0FF;
-  --primary-dark: #0052CC;
-  
+  --primary: #0066ff;
+  --primary-foreground: #ffffff;
+  --primary-light: #e6f0ff;
+  --primary-dark: #0052cc;
+
   /* Background - Clean white */
-  --background: #FFFFFF;
-  --foreground: #1A1A2E;
-  
+  --background: #ffffff;
+  --foreground: #1a1a2e;
+
   /* Card - Slight gray for depth */
-  --card: #FFFFFF;
-  --card-foreground: #1A1A2E;
-  
+  --card: #ffffff;
+  --card-foreground: #1a1a2e;
+
   /* Muted colors */
-  --muted: #F5F7FA;
-  --muted-foreground: #6B7280;
-  
+  --muted: #f5f7fa;
+  --muted-foreground: #6b7280;
+
   /* Secondary */
-  --secondary: #F0F4F8;
-  --secondary-foreground: #1A1A2E;
-  
+  --secondary: #f0f4f8;
+  --secondary-foreground: #1a1a2e;
+
   /* Accent - Gold for AUREO branding */
-  --accent: #F59E0B;
-  --accent-foreground: #FFFFFF;
-  
+  --accent: #f59e0b;
+  --accent-foreground: #ffffff;
+
   /* Borders */
-  --border: #E5E7EB;
-  --input: #E5E7EB;
-  --ring: #0066FF;
-  
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: #0066ff;
+
   /* Destructive */
-  --destructive: #EF4444;
-  --destructive-foreground: #FFFFFF;
-  
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
   /* Popover */
-  --popover: #FFFFFF;
-  --popover-foreground: #1A1A2E;
-  
+  --popover: #ffffff;
+  --popover-foreground: #1a1a2e;
+
   /* Success */
-  --success: #10B981;
-  --success-foreground: #FFFFFF;
-  
+  --success: #10b981;
+  --success-foreground: #ffffff;
+
   /* Gradient colors */
-  --gradient-start: #0066FF;
-  --gradient-end: #00D4AA;
-  --gradient-gold-start: #F59E0B;
-  --gradient-gold-end: #FBBF24;
+  --gradient-start: #0066ff;
+  --gradient-end: #00d4aa;
+  --gradient-gold-start: #f59e0b;
+  --gradient-gold-end: #fbbf24;
 }
 
 .dark {
-  --background: #0F172A;
-  --foreground: #F8FAFC;
-  --card: #1E293B;
-  --card-foreground: #F8FAFC;
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  --card: #1e293b;
+  --card-foreground: #f8fafc;
   --muted: #334155;
-  --muted-foreground: #94A3B8;
-  --secondary: #1E293B;
-  --secondary-foreground: #F8FAFC;
+  --muted-foreground: #94a3b8;
+  --secondary: #1e293b;
+  --secondary-foreground: #f8fafc;
   --border: #334155;
   --input: #334155;
-  --popover: #1E293B;
-  --popover-foreground: #F8FAFC;
+  --popover: #1e293b;
+  --popover-foreground: #f8fafc;
 }
 
 @theme inline {
@@ -102,11 +102,11 @@
   * {
     @apply border-border;
   }
-  
+
   html {
     font-family: var(--font-inter), system-ui, sans-serif;
   }
-  
+
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
@@ -196,7 +196,11 @@
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+  background: linear-gradient(
+    135deg,
+    var(--gradient-start),
+    var(--gradient-end)
+  );
   display: flex;
   align-items: center;
   justify-content: center;
@@ -223,7 +227,7 @@
 
 /* Card Styles */
 .wallet-card {
-  background: linear-gradient(135deg, #1A1A2E 0%, #2D2D44 50%, #1A1A2E 100%);
+  background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 50%, #1a1a2e 100%);
   border-radius: 20px;
   padding: 24px;
   color: white;
@@ -233,22 +237,26 @@
 }
 
 .wallet-card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -50%;
   right: -50%;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 70%
+  );
   pointer-events: none;
 }
 
 .wallet-card-gold {
-  background: linear-gradient(135deg, #F59E0B 0%, #D97706 50%, #B45309 100%);
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
 }
 
 .wallet-card-blue {
-  background: linear-gradient(135deg, #0066FF 0%, #0052CC 50%, #003D99 100%);
+  background: linear-gradient(135deg, #0066ff 0%, #0052cc 50%, #003d99 100%);
 }
 
 /* Glassmorphism card */
@@ -336,12 +344,12 @@
 
 .status-badge.success {
   background: rgba(16, 185, 129, 0.1);
-  color: #10B981;
+  color: #10b981;
 }
 
 .status-badge.pending {
   background: rgba(245, 158, 11, 0.1);
-  color: #F59E0B;
+  color: #f59e0b;
 }
 
 /* Shimmer effect for loading */
@@ -386,7 +394,7 @@
   .bottom-nav {
     padding-bottom: calc(24px + env(safe-area-inset-bottom));
   }
-  
+
   .mobile-container {
     padding-bottom: calc(100px + env(safe-area-inset-bottom));
   }
@@ -459,7 +467,7 @@
 
 .qr-scanner-box::before,
 .qr-scanner-box::after {
-  content: '';
+  content: "";
   position: absolute;
   width: 40px;
   height: 40px;
@@ -491,10 +499,87 @@
 }
 
 @keyframes scan {
-  0%, 100% {
+  0%,
+  100% {
     top: 10px;
   }
   50% {
     top: calc(100% - 10px);
   }
+}
+
+/* Html5-qrcode scanner custom styling */
+#qr-reader {
+  border: none !important;
+  background: transparent !important;
+}
+
+#qr-reader__scan_region {
+  background: transparent !important;
+}
+
+#qr-reader__scan_region video {
+  border-radius: 16px !important;
+  overflow: hidden;
+}
+
+#qr-reader__dashboard {
+  padding: 16px !important;
+}
+
+#qr-reader__dashboard_section_csr button {
+  background: var(--primary) !important;
+  color: white !important;
+  border: none !important;
+  padding: 12px 24px !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+#qr-reader__dashboard_section_csr button:hover {
+  opacity: 0.9 !important;
+  transform: scale(1.02) !important;
+}
+
+#qr-reader__dashboard_section_csr span,
+#qr-reader__dashboard span,
+#qr-reader__status_span {
+  color: white !important;
+  font-size: 14px !important;
+}
+
+#qr-reader__dashboard_section_swaplink {
+  color: rgba(255, 255, 255, 0.7) !important;
+  text-decoration: underline !important;
+}
+
+#qr-reader__camera_selection {
+  background: #1e293b !important;
+  color: white !important;
+  border: 1px solid #334155 !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  margin: 8px 0 !important;
+}
+
+#qr-reader__filescan_input {
+  display: none !important;
+}
+
+#html5-qrcode-anchor-scan-type-change {
+  color: rgba(255, 255, 255, 0.7) !important;
+  margin-top: 8px !important;
+}
+
+/* Hide unnecessary elements */
+#qr-reader__dashboard_section_fsr,
+#qr-reader img[alt="Info icon"] {
+  display: none !important;
+}
+
+/* Scanner viewport frame */
+#qr-shaded-region {
+  border-color: var(--primary) !important;
 }

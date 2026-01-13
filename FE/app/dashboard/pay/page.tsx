@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, Suspense } from 'react';
+import { useState, useRef, useEffect, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { ethers } from 'ethers';
@@ -23,6 +23,7 @@ import {
     ChevronRight,
     ExternalLink
 } from 'lucide-react';
+import { Html5QrcodeScanner, Html5QrcodeScanType } from 'html5-qrcode';
 
 type PayMode = 'scan' | 'send';
 
@@ -48,9 +49,10 @@ function PayPageContent() {
     const [error, setError] = useState('');
     const [txHash, setTxHash] = useState<string | null>(null);
     const [recentRecipients, setRecentRecipients] = useState<RecentRecipient[]>([]);
+    const [scanSuccess, setScanSuccess] = useState(false);
 
-    const videoRef = useRef<HTMLVideoElement>(null);
     const streamRef = useRef<MediaStream | null>(null);
+    const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
     // Load recent recipients from localStorage
     useEffect(() => {
@@ -80,30 +82,102 @@ function PayPageContent() {
         };
     }, []);
 
-    const startScanning = async () => {
+    // Extract EVM address from scanned text
+    const extractEvmAddress = useCallback((text: string): string | null => {
+        // Direct address format (0x...)
+        const directMatch = text.match(/^(0x[a-fA-F0-9]{40})$/);
+        if (directMatch) return directMatch[1];
+
+        // Ethereum URI format (ethereum:0x...)
+        const ethUriMatch = text.match(/ethereum:(0x[a-fA-F0-9]{40})/i);
+        if (ethUriMatch) return ethUriMatch[1];
+
+        // EIP-681 format (ethereum:0x...@chainId)
+        const eip681Match = text.match(/ethereum:(0x[a-fA-F0-9]{40})@/i);
+        if (eip681Match) return eip681Match[1];
+
+        // Search for any valid address in the text
+        const anyAddressMatch = text.match(/0x[a-fA-F0-9]{40}/);
+        if (anyAddressMatch) return anyAddressMatch[0];
+
+        return null;
+    }, []);
+
+    // Handle successful QR scan
+    const onScanSuccess = useCallback((decodedText: string) => {
+        console.log('QR Scanned:', decodedText);
+        const address = extractEvmAddress(decodedText);
+        
+        if (address && ethers.isAddress(address)) {
+            setRecipientAddress(address);
+            setScanSuccess(true);
+            setError('');
+            
+            // Stop scanner and switch to send mode
+            if (scannerRef.current) {
+                scannerRef.current.clear().catch(console.error);
+                scannerRef.current = null;
+            }
+            setIsScanning(false);
+            setMode('send');
+            
+            // Reset success state after animation
+            setTimeout(() => setScanSuccess(false), 2000);
+        } else {
+            setError('Invalid wallet address in QR code');
+        }
+    }, [extractEvmAddress]);
+
+    const startScanning = useCallback(async () => {
         setIsScanning(true);
         setError('');
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'environment' }
-            });
-            streamRef.current = stream;
-            if (videoRef.current) {
-                videoRef.current.srcObject = stream;
+        setScanSuccess(false);
+        
+        // Wait for DOM to render
+        setTimeout(() => {
+            try {
+                const scanner = new Html5QrcodeScanner(
+                    'qr-reader',
+                    {
+                        fps: 10,
+                        qrbox: { width: 250, height: 250 },
+                        aspectRatio: 1,
+                        supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
+                        rememberLastUsedCamera: true,
+                    },
+                    /* verbose= */ false
+                );
+                
+                scanner.render(
+                    (decodedText) => onScanSuccess(decodedText),
+                    (errorMessage) => {
+                        // Ignore scan failures (expected while scanning)
+                        if (!errorMessage.includes('No MultiFormat Readers')) {
+                            console.debug('QR scan error:', errorMessage);
+                        }
+                    }
+                );
+                
+                scannerRef.current = scanner;
+            } catch (err) {
+                console.error('Failed to start scanner:', err);
+                setError('Unable to start camera. Please grant camera permissions.');
+                setIsScanning(false);
             }
-        } catch {
-            setError('Unable to access camera. Please grant camera permissions.');
-            setIsScanning(false);
-        }
-    };
+        }, 100);
+    }, [onScanSuccess]);
 
-    const stopScanning = () => {
+    const stopScanning = useCallback(() => {
+        if (scannerRef.current) {
+            scannerRef.current.clear().catch(console.error);
+            scannerRef.current = null;
+        }
         if (streamRef.current) {
             streamRef.current.getTracks().forEach(track => track.stop());
             streamRef.current = null;
         }
         setIsScanning(false);
-    };
+    }, []);
 
     const saveRecentRecipient = (address: string) => {
         const existing = recentRecipients.filter(r => r.address.toLowerCase() !== address.toLowerCase());
@@ -225,37 +299,49 @@ function PayPageContent() {
         <MobileLayout activeTab="pay" showNav={!isScanning}>
             {/* QR Scanner Overlay */}
             {isScanning && (
-                <div className="qr-overlay flex flex-col">
-                    <div className="flex items-center justify-between p-4">
-                        <button onClick={stopScanning} className="p-2 rounded-full bg-white/10">
+                <div className="fixed inset-0 z-50 bg-black flex flex-col">
+                    <div className="flex items-center justify-between p-4 bg-black/80">
+                        <button onClick={stopScanning} className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">
                             <X className="w-6 h-6 text-white" />
                         </button>
-                        <span className="text-white font-medium">Scan QR Code</span>
+                        <span className="text-white font-medium">Scan Wallet QR Code</span>
                         <div className="w-10" />
                     </div>
 
-                    <div className="flex-1 flex items-center justify-center">
-                        <div className="relative">
-                            <video
-                                ref={videoRef}
-                                autoPlay
-                                playsInline
-                                className="w-72 h-72 rounded-3xl object-cover"
-                            />
-                            <div className="absolute inset-0 qr-scanner-box">
-                                <div className="scan-line" />
+                    <div className="flex-1 flex flex-col items-center justify-center p-4">
+                        {/* Html5-qrcode container */}
+                        <div 
+                            id="qr-reader" 
+                            className="w-full max-w-sm rounded-3xl overflow-hidden"
+                            style={{ 
+                                background: '#000',
+                            }}
+                        />
+                        
+                        {/* Success indicator */}
+                        {scanSuccess && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/80">
+                                <div className="bg-green-500 rounded-full p-6 animate-bounce">
+                                    <Check className="w-16 h-16 text-white" />
+                                </div>
                             </div>
-
-                            {/* Corner decorations */}
-                            <div className="absolute -bottom-0.5 -left-0.5 w-10 h-10 border-l-4 border-b-4 border-primary rounded-bl-xl" />
-                            <div className="absolute -bottom-0.5 -right-0.5 w-10 h-10 border-r-4 border-b-4 border-primary rounded-br-xl" />
-                        </div>
+                        )}
                     </div>
 
-                    <div className="p-6 text-center">
+                    <div className="p-6 text-center bg-black/80">
                         <p className="text-white/70 text-sm">
-                            Position the QR code within the frame to scan
+                            Scan any EVM wallet QR code to auto-fill the address
                         </p>
+                        <p className="text-white/50 text-xs mt-2">
+                            Supports: Plain address, ethereum: URI, MetaMask, Coinbase, etc.
+                        </p>
+                        
+                        {error && (
+                            <div className="mt-4 flex items-center justify-center gap-2 text-red-400">
+                                <AlertCircle className="w-4 h-4" />
+                                <span className="text-sm">{error}</span>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
