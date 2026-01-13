@@ -560,7 +560,7 @@ export default function AgentPage() {
                         <div className="flex-1">
                             <h4 className="font-semibold text-sm">Powered by Gemini Flash</h4>
                             <p className="text-xs text-muted-foreground mt-1">
-                                Fast &amp; affordable AI analysis using Google&apos;s Gemini 1.5 Flash model
+                                Fast &amp; affordable AI analysis using Google&apos;s Gemini 2.5 Flash model
                             </p>
                         </div>
                     </div>
