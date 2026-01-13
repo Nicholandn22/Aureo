@@ -234,7 +234,7 @@ export default function ProfilePage() {
 
                 {/* Version */}
                 <p className="text-center text-sm text-muted-foreground py-4">
-                    AUREO v1.0.0 • Built for Hackathon 2024
+                    AUREO v1.0.0 • Built for Hackathon 2026
                 </p>
             </div>
         </MobileLayout>

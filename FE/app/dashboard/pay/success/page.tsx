@@ -13,6 +13,13 @@ function SuccessContent() {
     const amount = searchParams.get('amount') || '0';
     const recipient = searchParams.get('to') || '';
     const txHash = searchParams.get('tx') || '';
+    const token = searchParams.get('token') || 'usdc';
+
+    const isUsdc = token === 'usdc';
+    const tokenName = isUsdc ? 'USDC' : 'mGold';
+    const amountDisplay = isUsdc 
+        ? `$${parseFloat(amount).toFixed(2)}` 
+        : `${parseFloat(amount).toFixed(6)} mGold`;
 
     const copyTxHash = async () => {
         if (txHash) {
@@ -25,7 +32,7 @@ function SuccessContent() {
     const explorerUrl = `https://explorer.sepolia.mantle.xyz/tx/${txHash}`;
 
     const shareReceipt = async () => {
-        const text = `I just sent $${parseFloat(amount).toFixed(2)} USDC on AUREO! 🪙\n\nView transaction: ${explorerUrl}`;
+        const text = `I just sent ${amountDisplay} on AUREO! 🪙\n\nView transaction: ${explorerUrl}`;
 
         if (navigator.share) {
             try {
@@ -56,16 +63,16 @@ function SuccessContent() {
 
                 <h1 className="text-2xl font-bold mb-2">Payment Sent!</h1>
                 <p className="text-muted-foreground mb-8">
-                    Your USDC has been successfully transferred
+                    Your {tokenName} has been successfully transferred
                 </p>
 
                 {/* Amount */}
                 <div className="bg-card rounded-2xl p-6 border border-border w-full max-w-sm mb-6">
                     <p className="text-sm text-muted-foreground mb-2">Amount Sent</p>
                     <p className="text-4xl font-bold text-foreground">
-                        ${parseFloat(amount).toFixed(2)}
+                        {isUsdc ? `$${parseFloat(amount).toFixed(2)}` : parseFloat(amount).toFixed(6)}
                     </p>
-                    <p className="text-sm text-muted-foreground mt-1">USDC</p>
+                    <p className="text-sm text-muted-foreground mt-1">{tokenName}</p>
                 </div>
 
                 {/* Details */}

@@ -121,17 +121,33 @@ export default function HistoryPage() {
                 isPositive: true,
             };
         } else if (tx.type === 'transfer_in') {
-            return {
-                primary: `+${tx.goldAmount?.toFixed(6) || '0'} mGold`,
-                secondary: 'Received',
-                isPositive: true,
-            };
+            if (tx.asset === 'usdc') {
+                return {
+                    primary: `+$${tx.amount.toFixed(2)} USDC`,
+                    secondary: 'Received',
+                    isPositive: true,
+                };
+            } else {
+                return {
+                    primary: `+${tx.goldAmount?.toFixed(6) || '0'} mGold`,
+                    secondary: 'Received',
+                    isPositive: true,
+                };
+            }
         } else {
-            return {
-                primary: `-${tx.goldAmount?.toFixed(6) || '0'} mGold`,
-                secondary: 'Sent',
-                isPositive: false,
-            };
+            if (tx.asset === 'usdc') {
+                return {
+                    primary: `-$${tx.amount.toFixed(2)} USDC`,
+                    secondary: 'Sent',
+                    isPositive: false,
+                };
+            } else {
+                return {
+                    primary: `-${tx.goldAmount?.toFixed(6) || '0'} mGold`,
+                    secondary: 'Sent',
+                    isPositive: false,
+                };
+            }
         }
     };
 

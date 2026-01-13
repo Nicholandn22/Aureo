@@ -17,6 +17,7 @@ export interface Transaction {
     status: 'completed' | 'pending' | 'failed';
     description: string;
     blockNumber: number;
+    asset: 'usdc' | 'gold';
 }
 
 export interface TransactionFilters {
@@ -51,6 +52,11 @@ export function useTransactionHistory(walletAddress: string | undefined) {
                 CONTRACT_ABIS.M_GOLD,
                 provider
             );
+            const usdcContract = new ethers.Contract(
+                CONTRACT_ADDRESSES.M_USDC,
+                CONTRACT_ABIS.M_USDC,
+                provider
+            );
 
             const txList: Transaction[] = [];
             const currentBlock = await provider.getBlockNumber();
@@ -81,6 +87,7 @@ export function useTransactionHistory(walletAddress: string | undefined) {
                             status: 'completed',
                             description: `Bought ${goldReceived.toFixed(6)} mGold`,
                             blockNumber: event.blockNumber,
+                            asset: 'gold' 
                         });
                     }
                 }
@@ -113,6 +120,7 @@ export function useTransactionHistory(walletAddress: string | undefined) {
                             status: 'completed',
                             description: `Sold ${goldSold.toFixed(6)} mGold`,
                             blockNumber: event.blockNumber,
+                            asset: 'usdc'
                         });
                     }
                 }
@@ -129,25 +137,123 @@ export function useTransactionHistory(walletAddress: string | undefined) {
                     const block = await event.getBlock();
                     const log = event as ethers.EventLog;
 
-                    if (log.args && log.args.from !== CONTRACT_ADDRESSES.AUREO_POOL) {
+                    // Filter out transfers from Aureo Pool (handled by BuyGold)
+                    if (log.args && log.args.from !== CONTRACT_ADDRESSES.AUREO_POOL && log.args.from !== ethers.ZeroAddress) {
                         const value = Number(ethers.formatUnits(log.args.value || 0, 18));
                         const from = log.args.from as string;
 
                         txList.push({
-                            id: `transfer-in-${event.transactionHash}`,
+                            id: `gold-in-${event.transactionHash}`,
                             type: 'transfer_in',
                             amount: 0,
                             goldAmount: value,
                             timestamp: new Date(block.timestamp * 1000),
                             txHash: event.transactionHash,
                             status: 'completed',
-                            description: `Received from ${from.slice(0, 6)}...${from.slice(-4)}`,
+                            description: `Received mGold from ${from.slice(0, 6)}...${from.slice(-4)}`,
                             blockNumber: event.blockNumber,
+                            asset: 'gold'
                         });
                     }
                 }
             } catch (e) {
-                console.error('Error fetching Transfer In events:', e);
+                console.error('Error fetching Gold Transfer In events:', e);
+            }
+
+            // Fetch mGold Transfer events (outgoing)
+            try {
+                const transferOutFilter = goldContract.filters.Transfer(walletAddress, null);
+                const transferOutEvents = await goldContract.queryFilter(transferOutFilter, fromBlock, currentBlock);
+
+                for (const event of transferOutEvents) {
+                    const block = await event.getBlock();
+                    const log = event as ethers.EventLog;
+
+                    // Filter out transfers to Aureo Pool (handled by SellGold)
+                    if (log.args && log.args.to !== CONTRACT_ADDRESSES.AUREO_POOL && log.args.to !== ethers.ZeroAddress) {
+                        const value = Number(ethers.formatUnits(log.args.value || 0, 18));
+                        const to = log.args.to as string;
+
+                        txList.push({
+                            id: `gold-out-${event.transactionHash}`,
+                            type: 'transfer_out',
+                            amount: 0,
+                            goldAmount: value,
+                            timestamp: new Date(block.timestamp * 1000),
+                            txHash: event.transactionHash,
+                            status: 'completed',
+                            description: `Sent mGold to ${to.slice(0, 6)}...${to.slice(-4)}`,
+                            blockNumber: event.blockNumber,
+                            asset: 'gold'
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error('Error fetching Gold Transfer Out events:', e);
+            }
+
+             // Fetch USDC Transfer events (incoming)
+             try {
+                const transferInFilter = usdcContract.filters.Transfer(null, walletAddress);
+                const transferInEvents = await usdcContract.queryFilter(transferInFilter, fromBlock, currentBlock);
+                const decimals = await usdcContract.decimals();
+
+                for (const event of transferInEvents) {
+                    const block = await event.getBlock();
+                    const log = event as ethers.EventLog;
+
+                    // Filter out transfers from Aureo Pool (handled by SellGold)
+                     if (log.args && log.args.from !== CONTRACT_ADDRESSES.AUREO_POOL && log.args.from !== ethers.ZeroAddress) {
+                        const value = Number(ethers.formatUnits(log.args.value || 0, decimals));
+                        const from = log.args.from as string;
+
+                        txList.push({
+                            id: `usdc-in-${event.transactionHash}`,
+                            type: 'transfer_in',
+                            amount: value,
+                            timestamp: new Date(block.timestamp * 1000),
+                            txHash: event.transactionHash,
+                            status: 'completed',
+                            description: `Received USDC from ${from.slice(0, 6)}...${from.slice(-4)}`,
+                            blockNumber: event.blockNumber,
+                            asset: 'usdc'
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error('Error fetching USDC Transfer In events:', e);
+            }
+
+            // Fetch USDC Transfer events (outgoing)
+            try {
+                const transferOutFilter = usdcContract.filters.Transfer(walletAddress, null);
+                const transferOutEvents = await usdcContract.queryFilter(transferOutFilter, fromBlock, currentBlock);
+                const decimals = await usdcContract.decimals();
+
+                for (const event of transferOutEvents) {
+                    const block = await event.getBlock();
+                    const log = event as ethers.EventLog;
+
+                    // Filter out transfers to Aureo Pool (handled by BuyGold)
+                    if (log.args && log.args.to !== CONTRACT_ADDRESSES.AUREO_POOL && log.args.to !== ethers.ZeroAddress) {
+                        const value = Number(ethers.formatUnits(log.args.value || 0, decimals));
+                        const to = log.args.to as string;
+
+                        txList.push({
+                            id: `usdc-out-${event.transactionHash}`,
+                            type: 'transfer_out',
+                            amount: value,
+                            timestamp: new Date(block.timestamp * 1000),
+                            txHash: event.transactionHash,
+                            status: 'completed',
+                            description: `Sent USDC to ${to.slice(0, 6)}...${to.slice(-4)}`,
+                            blockNumber: event.blockNumber,
+                            asset: 'usdc'
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error('Error fetching USDC Transfer Out events:', e);
             }
 
             // Sort by timestamp (newest first)
@@ -187,9 +293,6 @@ export function useTransactionHistory(walletAddress: string | undefined) {
     };
 }
 
-/**
- * Format transaction date for display
- */
 export function formatTransactionDate(date: Date): { date: string; time: string } {
     const now = new Date();
     const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));

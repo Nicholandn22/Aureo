@@ -21,7 +21,9 @@ import {
     AlertCircle,
     Loader2,
     ChevronRight,
-    ExternalLink
+    ExternalLink,
+    Coins,
+    DollarSign
 } from 'lucide-react';
 import { Html5QrcodeScanner, Html5QrcodeScanType } from 'html5-qrcode';
 
@@ -50,6 +52,7 @@ function PayPageContent() {
     const [txHash, setTxHash] = useState<string | null>(null);
     const [recentRecipients, setRecentRecipients] = useState<RecentRecipient[]>([]);
     const [scanSuccess, setScanSuccess] = useState(false);
+    const [selectedToken, setSelectedToken] = useState<'usdc' | 'gold'>('usdc');
 
     const streamRef = useRef<MediaStream | null>(null);
     const scannerRef = useRef<Html5QrcodeScanner | null>(null);
@@ -207,8 +210,9 @@ function PayPageContent() {
             return;
         }
 
-        if (numAmount > balances.usdc) {
-            setError(`Insufficient balance. You have $${balances.usdc.toFixed(2)} USDC`);
+        const currentBalance = selectedToken === 'usdc' ? balances.usdc : balances.gold;
+        if (numAmount > currentBalance) {
+            setError(`Insufficient balance. You have ${selectedToken === 'usdc' ? '$' : ''}${currentBalance.toFixed(selectedToken === 'usdc' ? 2 : 6)} ${selectedToken === 'usdc' ? 'USDC' : 'mGold'}`);
             return;
         }
 
@@ -234,20 +238,35 @@ function PayPageContent() {
             const ethersProvider = new ethers.BrowserProvider(provider);
             const signer = await ethersProvider.getSigner();
 
-            // Create USDC contract instance
-            const usdcContract = new ethers.Contract(
-                CONTRACT_ADDRESSES.M_USDC,
-                CONTRACT_ABIS.M_USDC,
+            let contractAddress: string;
+            let contractAbi: any;
+            let decimals = 18;
+
+            if (selectedToken === 'usdc') {
+                contractAddress = CONTRACT_ADDRESSES.M_USDC;
+                contractAbi = CONTRACT_ABIS.M_USDC;
+            } else {
+                contractAddress = CONTRACT_ADDRESSES.M_GOLD;
+                contractAbi = CONTRACT_ABIS.M_GOLD;
+            }
+
+            // Create contract instance
+            const contract = new ethers.Contract(
+                contractAddress,
+                contractAbi,
                 signer
             );
 
-            // Get decimals and parse amount
-            const decimals = await usdcContract.decimals();
+            // Get decimals (if needed, though we know gold is 18)
+            if (selectedToken === 'usdc') {
+                decimals = await contract.decimals();
+            }
+            
             const amountInWei = ethers.parseUnits(numAmount.toString(), decimals);
 
             // Execute transfer
-            console.log(`Sending ${numAmount} USDC to ${recipientAddress}...`);
-            const tx = await usdcContract.transfer(recipientAddress, amountInWei);
+            console.log(`Sending ${numAmount} ${selectedToken} to ${recipientAddress}...`);
+            const tx = await contract.transfer(recipientAddress, amountInWei);
             console.log('Transaction sent:', tx.hash);
 
             // Wait for confirmation
@@ -261,7 +280,7 @@ function PayPageContent() {
             await fetchBalances();
 
             // Navigate to success page
-            router.push(`/dashboard/pay/success?amount=${amount}&to=${recipientAddress}&tx=${receipt.hash}`);
+            router.push(`/dashboard/pay/success?amount=${amount}&to=${recipientAddress}&tx=${receipt.hash}&token=${selectedToken}`);
         } catch (err: unknown) {
             console.error('Transfer error:', err);
             const errorMessage = err instanceof Error ? err.message : 'Transaction failed';
@@ -285,7 +304,7 @@ function PayPageContent() {
         }
     };
 
-    const quickAmounts = [10, 25, 50, 100];
+    const quickAmounts = selectedToken === 'usdc' ? [10, 25, 50, 100] : [0.01, 0.05, 0.1, 0.5];
 
     if (!ready || !authenticated) {
         return (
@@ -360,8 +379,33 @@ function PayPageContent() {
 
                 {/* Balance Display */}
                 <div className="bg-white/10 rounded-2xl p-4 mb-4">
-                    <p className="text-white/70 text-sm">Available USDC</p>
-                    <p className="text-3xl font-bold">${balances.usdc.toFixed(2)}</p>
+                    <div className="flex items-center justify-between mb-1">
+                        <p className="text-white/70 text-sm">Available {selectedToken === 'usdc' ? 'USDC' : 'mGold'}</p>
+                        <div className="flex bg-black/20 rounded-lg p-0.5">
+                            <button
+                                onClick={() => setSelectedToken('usdc')}
+                                className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                                    selectedToken === 'usdc' ? 'bg-white text-primary' : 'text-white/70 hover:text-white'
+                                }`}
+                            >
+                                USDC
+                            </button>
+                            <button
+                                onClick={() => setSelectedToken('gold')}
+                                className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                                    selectedToken === 'gold' ? 'bg-white text-primary' : 'text-white/70 hover:text-white'
+                                }`}
+                            >
+                                Gold
+                            </button>
+                        </div>
+                    </div>
+                    <p className="text-3xl font-bold">
+                        {selectedToken === 'usdc' 
+                            ? `$${balances.usdc.toFixed(2)}` 
+                            : `${balances.gold.toFixed(6)}`
+                        }
+                    </p>
                 </div>
 
                 {/* Mode Toggle */}
@@ -401,7 +445,7 @@ function PayPageContent() {
                                 <div>
                                     <h3 className="font-semibold text-lg">Scan to Pay</h3>
                                     <p className="text-muted-foreground text-sm mt-1">
-                                        Scan any EVM wallet QR code to send USDC instantly
+                                        Scan any EVM wallet QR code to send {selectedToken === 'usdc' ? 'USDC' : 'Gold'} instantly
                                     </p>
                                 </div>
                                 <Button
@@ -445,6 +489,9 @@ function PayPageContent() {
                     <>
                         {/* Transfer Mode */}
                         <div className="bg-card rounded-2xl p-6 border border-border space-y-6">
+                            {/* Coins Toggle Inline (Optional - redundant with header but good for context) */}
+                            {/* Using Header toggle is enough for now */}
+
                             {/* Recipient Address */}
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Recipient Address</label>
@@ -469,14 +516,14 @@ function PayPageContent() {
                             {/* Amount */}
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
-                                    <label className="text-sm font-medium">Amount (USDC)</label>
+                                    <label className="text-sm font-medium">Amount ({selectedToken.toUpperCase()})</label>
                                     <span className="text-xs text-muted-foreground">
-                                        Balance: ${balances.usdc.toFixed(2)}
+                                        Balance: {selectedToken === 'usdc' ? '$' : ''}{selectedToken === 'usdc' ? balances.usdc.toFixed(2) : balances.gold.toFixed(6)}
                                     </span>
                                 </div>
                                 <div className="relative">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-medium text-muted-foreground">
-                                        $
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-medium text-muted-foreground px-1">
+                                         {selectedToken === 'usdc' ? <DollarSign className="w-5 h-5"/> : <Coins className="w-5 h-5"/>}
                                     </span>
                                     <Input
                                         type="number"
@@ -486,7 +533,7 @@ function PayPageContent() {
                                             setError('');
                                         }}
                                         placeholder="0.00"
-                                        className="pl-10 py-6 text-2xl font-semibold rounded-xl"
+                                        className="pl-12 py-6 text-2xl font-semibold rounded-xl"
                                         disabled={isSending}
                                     />
                                 </div>
@@ -497,13 +544,13 @@ function PayPageContent() {
                                         <button
                                             key={amt}
                                             onClick={() => setAmount(amt.toString())}
-                                            disabled={amt > balances.usdc || isSending}
+                                            disabled={(amt > (selectedToken === 'usdc' ? balances.usdc : balances.gold)) || isSending}
                                             className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${amount === amt.toString()
                                                 ? 'bg-primary text-white'
                                                 : 'bg-muted hover:bg-secondary text-foreground'
-                                                } ${amt > balances.usdc ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                } ${amt > (selectedToken === 'usdc' ? balances.usdc : balances.gold) ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         >
-                                            ${amt}
+                                            {selectedToken === 'usdc' ? '$' : ''}{amt}
                                         </button>
                                     ))}
                                 </div>
@@ -547,7 +594,7 @@ function PayPageContent() {
                                 ) : (
                                     <>
                                         <Send className="w-5 h-5 mr-2" />
-                                        Send USDC
+                                        Send {selectedToken === 'usdc' ? 'USDC' : 'Gold'}
                                     </>
                                 )}
                             </Button>

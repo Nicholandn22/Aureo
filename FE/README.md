@@ -25,11 +25,11 @@ AUREO implements the x402 payment protocol for AI agent execution:
 
 ### Pricing
 
-| Service | Price | Description |
-|---------|-------|-------------|
-| Market Analysis | $0.01 USDC | AI-powered buy/wait recommendation |
-| Smart Buy Execution | $0.05 USDC | AI executes optimal gold purchase |
-| Premium Analysis | $0.02 USDC | Detailed multi-indicator analysis |
+| Service             | Price      | Description                        |
+| ------------------- | ---------- | ---------------------------------- |
+| Market Analysis     | $0.01 USDC | AI-powered buy/wait recommendation |
+| Smart Buy Execution | $0.05 USDC | AI executes optimal gold purchase  |
+| Premium Analysis    | $0.02 USDC | Detailed multi-indicator analysis  |
 
 ### x402 Endpoints
 
@@ -99,11 +99,13 @@ GEMINI_API_KEY=your_gemini_api_key
 ### 3. Get Required API Keys
 
 **Privy App ID:**
+
 1. Visit [Privy Dashboard](https://dashboard.privy.io)
 2. Create new app
 3. Enable Email, Google, Wallet login
 
 **Gemini API Key:**
+
 1. Visit [Google AI Studio](https://aistudio.google.com/app/apikey)
 2. Create API key
 
@@ -176,12 +178,14 @@ FE/
 ## 🎨 Design System
 
 **Mobile-First Fintech Design:**
+
 - Bottom navigation with prominent center Pay button
 - Bank-style wallet cards with balance
 - Light theme as default
 - Clean, professional typography
 
 **Color Palette:**
+
 - Primary: Blue (#0066FF)
 - Accent: Amber/Gold
 - Background: Clean white
@@ -190,11 +194,13 @@ FE/
 ## 📡 API Routes
 
 ### Public Routes
+
 - `GET /api/price/gold` - Real-time gold price
 - `GET /api/balances/:address` - User balances
 - `GET /api/transactions/:address` - Transaction history
 
 ### x402 Protected Routes
+
 - `POST /api/x402/analyze` - AI market analysis ($0.01)
 - `POST /api/x402/smart-buy` - Smart buy execution ($0.05)
 
@@ -203,8 +209,8 @@ FE/
 ```typescript
 // Client-side payment request
 const result = await x402Client.requestWithPayment(
-  '/api/x402/analyze',
-  { method: 'POST', body: JSON.stringify({ amount: 100 }) },
+  "/api/x402/analyze",
+  { method: "POST", body: JSON.stringify({ amount: 100 }) },
   async (requirement) => {
     // Show payment dialog
     return await showPaymentConfirmation(requirement);
@@ -231,7 +237,7 @@ const result = await x402Client.requestWithPayment(
 
 ## 📝 License
 
-MIT License - Built for Hackathon 2024
+MIT License - Built for Hackathon 2026
 
 ---
 
