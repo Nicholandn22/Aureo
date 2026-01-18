@@ -555,42 +555,29 @@ const M_USDC_ABI = [
 // - getGoldPrice18Decimals(): Get current gold price
 // ============================================
 
-// Pyth Hermes API for XAU/USD price feed
-const PYTH_HERMES_API =
-  "https://hermes.pyth.network/api/latest_price_feeds?ids[]=0x765d2ba906dbc32ca17cc11f5310a89e9ee1f6420508c63861f2f8ba4ee34bb2";
-
-// Fallback price when Pyth API is unavailable
+// Fallback price when contract is unavailable
 const FALLBACK_GOLD_PRICE = 2650; // USD per ounce (for demo)
 
 /**
- * Get the current gold price from Pyth Hermes API
- * Uses the Hermes API directly since on-chain oracle is often stale on testnet
+ * Get the current gold price from AureoRWAPool contract
+ * The contract reads from Pyth on-chain oracle
  * @returns Gold price in USD per ounce
  */
 export async function getGoldPrice(): Promise<number> {
+  const provider = new ethers.JsonRpcProvider(RPC_URL);
+  const contract = new ethers.Contract(
+    AUREO_POOL_ADDRESS,
+    AUREO_POOL_ABI,
+    provider,
+  );
+
   try {
-    const response = await fetch(PYTH_HERMES_API);
-    if (!response.ok) {
-      throw new Error(`Pyth API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    const priceData = data[0]?.price;
-
-    if (!priceData) {
-      throw new Error("No price data available from Pyth");
-    }
-
-    // Convert price from Pyth format (price * 10^expo)
-    const price = Number(priceData.price) * Math.pow(10, priceData.expo);
-    console.log("✅ Pyth Gold Price (XAU/USD):", price.toFixed(2));
+    const priceInWei = await contract.getGoldPrice18Decimals();
+    const price = Number(ethers.formatUnits(priceInWei, 18));
+    console.log("✅ On-chain Gold Price (XAU/USD):", price.toFixed(2));
     return price;
   } catch (error) {
-    console.warn(
-      "Pyth API unavailable, using fallback price:",
-      FALLBACK_GOLD_PRICE,
-      error,
-    );
+    console.warn("Contract price read failed, using fallback:", error);
     return FALLBACK_GOLD_PRICE;
   }
 }
