@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { PrivyProvider } from '@privy-io/react-auth';
-import { MANTLE_SEPOLIA } from '@/lib/types';
-import React from 'react';
+import { PrivyProvider } from "@privy-io/react-auth";
+import { MANTLE_SEPOLIA } from "@/lib/types";
+import React from "react";
 
 // Mantle Sepolia chain configuration for Privy
 const mantleSepolia = {
   id: MANTLE_SEPOLIA.chainId,
   name: MANTLE_SEPOLIA.name,
-  network: 'mantle-sepolia',
+  network: "mantle-sepolia",
   nativeCurrency: MANTLE_SEPOLIA.nativeCurrency,
   rpcUrls: {
     default: {
@@ -20,7 +20,7 @@ const mantleSepolia = {
   },
   blockExplorers: {
     default: {
-      name: 'Mantle Sepolia Explorer',
+      name: "Mantle Sepolia Explorer",
       url: MANTLE_SEPOLIA.explorerUrl,
     },
   },
@@ -39,7 +39,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
           </div>
           <h2 className="text-2xl font-bold">Configuration Required</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Please add your Privy App ID to <code className="px-2 py-1 bg-secondary rounded text-sm">.env.local</code>
+            Please add your Privy App ID to{" "}
+            <code className="px-2 py-1 bg-secondary rounded text-sm">
+              .env.local
+            </code>
           </p>
           <div className="bg-secondary/50 rounded-xl p-4 text-left">
             <code className="text-sm">
@@ -47,7 +50,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             </code>
           </div>
           <p className="text-sm text-muted-foreground">
-            Get your App ID from{' '}
+            Get your App ID from{" "}
             <a
               href="https://dashboard.privy.io"
               target="_blank"
@@ -67,13 +70,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
       appId={privyAppId}
       config={{
         // Login methods - prioritize email for easy onboarding
-        loginMethods: ['email', 'wallet', 'google'],
+        loginMethods: ["email", "wallet", "google"],
 
         // Appearance customization
         appearance: {
-          theme: 'light',
-          accentColor: '#F59E0B', // Amber color to match Aureo branding
-          logo: '/aureo-logo.png',
+          theme: "light",
+          accentColor: "#F59E0B", // Amber color to match Aureo branding
+          logo: "/Aureo.png",
           showWalletLoginFirst: false, // Email first for better UX
         },
 
@@ -85,20 +88,18 @@ export function Providers({ children }: { children: React.ReactNode }) {
         embeddedWallets: {
           // Create wallet on signup for seamless experience
           ethereum: {
-            createOnLogin: 'users-without-wallets',
+            createOnLogin: "users-without-wallets",
           },
         },
 
         // Legal information (optional)
         legal: {
-          termsAndConditionsUrl: '/terms',
-          privacyPolicyUrl: '/privacy',
+          termsAndConditionsUrl: "/terms",
+          privacyPolicyUrl: "/privacy",
         },
       }}
     >
-      <React.Fragment key="privy-children">
-        {children}
-      </React.Fragment>
+      <React.Fragment key="privy-children">{children}</React.Fragment>
     </PrivyProvider>
   );
 }

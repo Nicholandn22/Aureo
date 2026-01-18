@@ -1,14 +1,20 @@
-'use client';
+"use client";
 
-import { usePrivy } from '@privy-io/react-auth';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useState, useEffect } from 'react';
-import { DepositDialog } from '@/components/deposit-dialog';
-import { WithdrawDialog } from '@/components/withdraw-dialog';
-import { ThemeToggle } from '@/components/theme-toggle';
-import { useAureoContract } from '@/lib/hooks/useAureoContract';
+import { usePrivy } from "@privy-io/react-auth";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { DepositDialog } from "@/components/deposit-dialog";
+import { WithdrawDialog } from "@/components/withdraw-dialog";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { useAureoContract } from "@/lib/hooks/useAureoContract";
 import {
   Sparkles,
   TrendingUp,
@@ -18,8 +24,9 @@ import {
   ExternalLink,
   Coins,
   AlertCircle,
-  CheckCircle2
-} from 'lucide-react';
+  CheckCircle2,
+} from "lucide-react";
+import Image from "next/image";
 
 export default function Dashboard() {
   const { ready, authenticated, user, logout } = usePrivy();
@@ -34,16 +41,21 @@ export default function Dashboard() {
     buyGold,
     sellGold,
     mintTestUSDC,
-    contractAddresses
+    contractAddresses,
   } = useAureoContract();
 
-  const [aiStatus, setAiStatus] = useState<'analyzing' | 'ready' | 'bought' | 'error'>('ready');
+  const [aiStatus, setAiStatus] = useState<
+    "analyzing" | "ready" | "bought" | "error"
+  >("ready");
   const [lastTxHash, setLastTxHash] = useState<string | null>(null);
-  const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+  const [notification, setNotification] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
     if (ready && !authenticated) {
-      router.push('/');
+      router.push("/");
     }
   }, [ready, authenticated, router]);
 
@@ -71,42 +83,54 @@ export default function Dashboard() {
 
   const handleLogout = async () => {
     await logout();
-    router.push('/');
+    router.push("/");
   };
 
   const handleDeposit = async (amount: number) => {
-    setAiStatus('analyzing');
+    setAiStatus("analyzing");
     setNotification(null);
 
     const result = await buyGold(amount);
 
     if (result.success) {
-      setAiStatus('bought');
+      setAiStatus("bought");
       setLastTxHash(result.txHash || null);
-      setNotification({ type: 'success', message: `Successfully purchased gold! TX: ${result.txHash?.slice(0, 10)}...` });
-      setTimeout(() => setAiStatus('ready'), 3000);
+      setNotification({
+        type: "success",
+        message: `Successfully purchased gold! TX: ${result.txHash?.slice(0, 10)}...`,
+      });
+      setTimeout(() => setAiStatus("ready"), 3000);
     } else {
-      setAiStatus('error');
-      setNotification({ type: 'error', message: result.error || 'Transaction failed' });
-      setTimeout(() => setAiStatus('ready'), 3000);
+      setAiStatus("error");
+      setNotification({
+        type: "error",
+        message: result.error || "Transaction failed",
+      });
+      setTimeout(() => setAiStatus("ready"), 3000);
     }
   };
 
   const handleWithdraw = async (grams: number) => {
-    setAiStatus('analyzing');
+    setAiStatus("analyzing");
     setNotification(null);
 
     const result = await sellGold(grams);
 
     if (result.success) {
-      setAiStatus('bought');
+      setAiStatus("bought");
       setLastTxHash(result.txHash || null);
-      setNotification({ type: 'success', message: `Successfully sold gold! TX: ${result.txHash?.slice(0, 10)}...` });
-      setTimeout(() => setAiStatus('ready'), 3000);
+      setNotification({
+        type: "success",
+        message: `Successfully sold gold! TX: ${result.txHash?.slice(0, 10)}...`,
+      });
+      setTimeout(() => setAiStatus("ready"), 3000);
     } else {
-      setAiStatus('error');
-      setNotification({ type: 'error', message: result.error || 'Transaction failed' });
-      setTimeout(() => setAiStatus('ready'), 3000);
+      setAiStatus("error");
+      setNotification({
+        type: "error",
+        message: result.error || "Transaction failed",
+      });
+      setTimeout(() => setAiStatus("ready"), 3000);
     }
   };
 
@@ -115,9 +139,12 @@ export default function Dashboard() {
     const result = await mintTestUSDC(1000); // Mint 1000 test USDC
 
     if (result.success) {
-      setNotification({ type: 'success', message: 'Minted 1000 test USDC!' });
+      setNotification({ type: "success", message: "Minted 1000 test USDC!" });
     } else {
-      setNotification({ type: 'error', message: result.error || 'Failed to mint USDC' });
+      setNotification({
+        type: "error",
+        message: result.error || "Failed to mint USDC",
+      });
     }
   };
 
@@ -128,19 +155,32 @@ export default function Dashboard() {
       <div className="absolute inset-0 bg-gradient-to-br from-amber-50/50 via-background to-orange-50/30 dark:from-background dark:via-amber-950/10 dark:to-background"></div>
 
       <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-amber-200/30 dark:bg-amber-700/20 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-40 animate-pulse"></div>
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-orange-200/30 dark:bg-orange-700/20 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-40 animate-pulse" style={{ animationDelay: '2s' }}></div>
+      <div
+        className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-orange-200/30 dark:bg-orange-700/20 rounded-full mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-40 animate-pulse"
+        style={{ animationDelay: "2s" }}
+      ></div>
 
       {/* Notification Toast */}
       {notification && (
-        <div className={`fixed top-4 right-4 z-50 p-4 rounded-xl shadow-lg flex items-center gap-3 animate-in slide-in-from-right ${notification.type === 'success'
-            ? 'bg-green-100 dark:bg-green-900/50 border border-green-200 dark:border-green-800'
-            : 'bg-red-100 dark:bg-red-900/50 border border-red-200 dark:border-red-800'
-          }`}>
-          {notification.type === 'success'
-            ? <CheckCircle2 className="w-5 h-5 text-green-600" />
-            : <AlertCircle className="w-5 h-5 text-red-600" />
-          }
-          <span className={notification.type === 'success' ? 'text-green-800 dark:text-green-200' : 'text-red-800 dark:text-red-200'}>
+        <div
+          className={`fixed top-4 right-4 z-50 p-4 rounded-xl shadow-lg flex items-center gap-3 animate-in slide-in-from-right ${
+            notification.type === "success"
+              ? "bg-green-100 dark:bg-green-900/50 border border-green-200 dark:border-green-800"
+              : "bg-red-100 dark:bg-red-900/50 border border-red-200 dark:border-red-800"
+          }`}
+        >
+          {notification.type === "success" ? (
+            <CheckCircle2 className="w-5 h-5 text-green-600" />
+          ) : (
+            <AlertCircle className="w-5 h-5 text-red-600" />
+          )}
+          <span
+            className={
+              notification.type === "success"
+                ? "text-green-800 dark:text-green-200"
+                : "text-red-800 dark:text-red-200"
+            }
+          >
             {notification.message}
           </span>
         </div>
@@ -150,9 +190,13 @@ export default function Dashboard() {
         <header className="sticky top-0 z-50 backdrop-blur-md bg-background/80 border-b border-border/60">
           <div className="container mx-auto px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg">
-                <span className="text-xl font-bold text-white">A</span>
-              </div>
+              <Image
+                src="/Aureo.png"
+                alt="AUREO Logo"
+                width={36}
+                height={36}
+                className="w-9 h-9 rounded-xl shadow-lg"
+              />
               <span className="text-2xl font-bold bg-gradient-to-r from-amber-600 via-amber-500 to-orange-500 bg-clip-text text-transparent">
                 AUREO
               </span>
@@ -165,10 +209,13 @@ export default function Dashboard() {
                 disabled={isLoading}
                 className="text-muted-foreground"
               >
-                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                <RefreshCw
+                  className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
+                />
               </Button>
               <div className="text-sm text-muted-foreground hidden sm:block">
-                {user?.email?.address || walletAddress?.slice(0, 6) + '...' + walletAddress?.slice(-4)}
+                {user?.email?.address ||
+                  walletAddress?.slice(0, 6) + "..." + walletAddress?.slice(-4)}
               </div>
               <ThemeToggle />
               <Button variant="outline" size="sm" onClick={handleLogout}>
@@ -182,7 +229,9 @@ export default function Dashboard() {
         <div className="container mx-auto px-6 py-10 max-w-6xl">
           <div className="mb-10">
             <h1 className="text-3xl font-bold mb-2">Welcome back!</h1>
-            <p className="text-muted-foreground">Your intelligent gold wallet</p>
+            <p className="text-muted-foreground">
+              Your intelligent gold wallet
+            </p>
           </div>
 
           {/* Error Display */}
@@ -196,13 +245,17 @@ export default function Dashboard() {
           {/* Main Balance Card */}
           <Card className="mb-8 backdrop-blur-sm bg-card/50 border-border/60 shadow-xl">
             <CardHeader className="pb-4">
-              <CardDescription className="text-sm font-medium">Total Gold Balance</CardDescription>
+              <CardDescription className="text-sm font-medium">
+                Total Gold Balance
+              </CardDescription>
               <div className="space-y-1 mt-2">
                 <div className="flex items-baseline gap-2">
                   <CardTitle className="text-6xl font-bold bg-gradient-to-r from-amber-600 via-amber-500 to-orange-500 bg-clip-text text-transparent tracking-tight">
                     {balances.gold.toFixed(6)}
                   </CardTitle>
-                  <span className="text-4xl font-semibold text-amber-600 dark:text-amber-400">mGold</span>
+                  <span className="text-4xl font-semibold text-amber-600 dark:text-amber-400">
+                    mGold
+                  </span>
                 </div>
                 <div className="text-xl text-muted-foreground font-medium">
                   ≈ ${totalValueUSD.toFixed(2)} USD
@@ -263,14 +316,20 @@ export default function Dashboard() {
                     <code className="text-xs bg-secondary px-2 py-1 rounded">
                       {walletAddress?.slice(0, 6)}...{walletAddress?.slice(-4)}
                     </code>
-                    <a href={explorerUrl} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={explorerUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <ExternalLink className="w-4 h-4 text-muted-foreground hover:text-foreground" />
                     </a>
                   </div>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">USDC Balance</span>
-                  <span className="font-medium">${balances.usdc.toFixed(2)}</span>
+                  <span className="font-medium">
+                    ${balances.usdc.toFixed(2)}
+                  </span>
                 </div>
               </div>
             </CardContent>
@@ -285,28 +344,42 @@ export default function Dashboard() {
                     <Sparkles className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                     Transaction Status
                   </span>
-                  <div className={`w-3 h-3 rounded-full ${aiStatus === 'analyzing' ? 'bg-blue-500 animate-pulse' :
-                      aiStatus === 'bought' ? 'bg-green-500' :
-                        aiStatus === 'error' ? 'bg-red-500' :
-                          'bg-gray-500'
-                    }`} />
+                  <div
+                    className={`w-3 h-3 rounded-full ${
+                      aiStatus === "analyzing"
+                        ? "bg-blue-500 animate-pulse"
+                        : aiStatus === "bought"
+                          ? "bg-green-500"
+                          : aiStatus === "error"
+                            ? "bg-red-500"
+                            : "bg-gray-500"
+                    }`}
+                  />
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {aiStatus === 'analyzing' && (
+                {aiStatus === "analyzing" && (
                   <div className="space-y-2">
-                    <p className="text-sm font-medium text-foreground">Processing transaction...</p>
+                    <p className="text-sm font-medium text-foreground">
+                      Processing transaction...
+                    </p>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      Please confirm the transaction in your wallet and wait for confirmation.
+                      Please confirm the transaction in your wallet and wait for
+                      confirmation.
                     </p>
                     <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-amber-500 to-amber-600 animate-pulse" style={{ width: '60%' }} />
+                      <div
+                        className="h-full bg-gradient-to-r from-amber-500 to-amber-600 animate-pulse"
+                        style={{ width: "60%" }}
+                      />
                     </div>
                   </div>
                 )}
-                {aiStatus === 'bought' && (
+                {aiStatus === "bought" && (
                   <div className="space-y-2">
-                    <p className="text-sm font-medium text-foreground">✓ Transaction completed!</p>
+                    <p className="text-sm font-medium text-foreground">
+                      ✓ Transaction completed!
+                    </p>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       Your transaction has been confirmed on the blockchain.
                     </p>
@@ -322,19 +395,22 @@ export default function Dashboard() {
                     )}
                   </div>
                 )}
-                {aiStatus === 'error' && (
+                {aiStatus === "error" && (
                   <div className="space-y-2">
-                    <p className="text-sm font-medium text-red-600">✗ Transaction failed</p>
+                    <p className="text-sm font-medium text-red-600">
+                      ✗ Transaction failed
+                    </p>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       Please check your balance and try again.
                     </p>
                   </div>
                 )}
-                {aiStatus === 'ready' && (
+                {aiStatus === "ready" && (
                   <div className="space-y-2">
                     <p className="text-sm font-medium">Ready to trade</p>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      Buy or sell gold tokens instantly at the current market price.
+                      Buy or sell gold tokens instantly at the current market
+                      price.
                     </p>
                   </div>
                 )}
@@ -345,7 +421,9 @@ export default function Dashboard() {
             <Card className="backdrop-blur-sm bg-card/50 border-border/60 hover:shadow-lg hover:shadow-amber-500/5 transition-all duration-300">
               <CardHeader>
                 <CardTitle className="text-lg">Current Gold Price</CardTitle>
-                <CardDescription>Real-time via Pyth Network Oracle</CardDescription>
+                <CardDescription>
+                  Real-time via Pyth Network Oracle
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold mb-2 bg-gradient-to-r from-amber-600 to-orange-500 bg-clip-text text-transparent">
@@ -372,7 +450,8 @@ export default function Dashboard() {
                     rel="noopener noreferrer"
                     className="font-mono text-xs hover:text-amber-600 flex items-center gap-1"
                   >
-                    {contractAddresses.AUREO_POOL.slice(0, 6)}...{contractAddresses.AUREO_POOL.slice(-4)}
+                    {contractAddresses.AUREO_POOL.slice(0, 6)}...
+                    {contractAddresses.AUREO_POOL.slice(-4)}
                     <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
@@ -384,7 +463,8 @@ export default function Dashboard() {
                     rel="noopener noreferrer"
                     className="font-mono text-xs hover:text-amber-600 flex items-center gap-1"
                   >
-                    {contractAddresses.M_GOLD.slice(0, 6)}...{contractAddresses.M_GOLD.slice(-4)}
+                    {contractAddresses.M_GOLD.slice(0, 6)}...
+                    {contractAddresses.M_GOLD.slice(-4)}
                     <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
@@ -396,7 +476,8 @@ export default function Dashboard() {
                     rel="noopener noreferrer"
                     className="font-mono text-xs hover:text-amber-600 flex items-center gap-1"
                   >
-                    {contractAddresses.M_USDC.slice(0, 6)}...{contractAddresses.M_USDC.slice(-4)}
+                    {contractAddresses.M_USDC.slice(0, 6)}...
+                    {contractAddresses.M_USDC.slice(-4)}
                     <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
@@ -416,7 +497,9 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <p className="font-medium">Mantle Sepolia</p>
-                    <p className="text-sm text-muted-foreground">Testnet (Chain ID: 5003)</p>
+                    <p className="text-sm text-muted-foreground">
+                      Testnet (Chain ID: 5003)
+                    </p>
                   </div>
                 </div>
               </CardContent>

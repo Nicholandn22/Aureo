@@ -555,33 +555,41 @@ const M_USDC_ABI = [
 // - getGoldPrice18Decimals(): Get current gold price
 // ============================================
 
-// Fallback price when Pyth Oracle is stale (common on testnet)
-// This uses approximate gold price per gram in USD
-// Real gold: ~$2650/oz ÷ 31.1g = ~$85/gram
+// Pyth Hermes API for XAU/USD price feed
+const PYTH_HERMES_API =
+  "https://hermes.pyth.network/api/latest_price_feeds?ids[]=0x765d2ba906dbc32ca17cc11f5310a89e9ee1f6420508c63861f2f8ba4ee34bb2";
+
+// Fallback price when Pyth API is unavailable
 const FALLBACK_GOLD_PRICE = 2650; // USD per ounce (for demo)
 
 /**
- * Get the current gold price from Pyth Oracle
- * Falls back to demo price if oracle is stale (common on testnet)
- * @returns Gold price in USD (18 decimals normalized)
+ * Get the current gold price from Pyth Hermes API
+ * Uses the Hermes API directly since on-chain oracle is often stale on testnet
+ * @returns Gold price in USD per ounce
  */
 export async function getGoldPrice(): Promise<number> {
-  const provider = new ethers.JsonRpcProvider(RPC_URL);
-  const contract = new ethers.Contract(
-    AUREO_POOL_ADDRESS,
-    AUREO_POOL_ABI,
-    provider
-  );
-
   try {
-    const price = await contract.getGoldPrice18Decimals();
-    return Number(ethers.formatUnits(price, 18));
-  } catch (_error) {
-    // Pyth Oracle is likely stale on testnet (price data > 60 seconds old)
-    // Return fallback price for demo purposes
+    const response = await fetch(PYTH_HERMES_API);
+    if (!response.ok) {
+      throw new Error(`Pyth API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const priceData = data[0]?.price;
+
+    if (!priceData) {
+      throw new Error("No price data available from Pyth");
+    }
+
+    // Convert price from Pyth format (price * 10^expo)
+    const price = Number(priceData.price) * Math.pow(10, priceData.expo);
+    console.log("✅ Pyth Gold Price (XAU/USD):", price.toFixed(2));
+    return price;
+  } catch (error) {
     console.warn(
-      "Pyth Oracle stale/unavailable, using fallback price:",
-      FALLBACK_GOLD_PRICE
+      "Pyth API unavailable, using fallback price:",
+      FALLBACK_GOLD_PRICE,
+      error,
     );
     return FALLBACK_GOLD_PRICE;
   }
@@ -597,7 +605,7 @@ export async function getGoldBalance(userAddress: string): Promise<number> {
   const mGoldContract = new ethers.Contract(
     M_GOLD_ADDRESS,
     M_GOLD_ABI,
-    provider
+    provider,
   );
 
   try {
@@ -619,7 +627,7 @@ export async function getUSDCBalance(userAddress: string): Promise<number> {
   const usdcContract = new ethers.Contract(
     M_USDC_ADDRESS,
     M_USDC_ABI,
-    provider
+    provider,
   );
 
   try {
@@ -644,12 +652,12 @@ export async function getUSDCBalance(userAddress: string): Promise<number> {
 export async function buyGold(
   signer: ethers.Signer,
   usdcAmount: number,
-  _slippagePercent: number = 5
+  _slippagePercent: number = 5,
 ): Promise<{ txHash: string }> {
   const aureoContract = new ethers.Contract(
     AUREO_POOL_ADDRESS,
     AUREO_POOL_ABI,
-    signer
+    signer,
   );
   const usdcContract = new ethers.Contract(M_USDC_ADDRESS, M_USDC_ABI, signer);
 
@@ -661,7 +669,7 @@ export async function buyGold(
     // First, approve the Aureo Pool to spend USDC
     const approveTx = await usdcContract.approve(
       AUREO_POOL_ADDRESS,
-      amountInWei
+      amountInWei,
     );
     await approveTx.wait();
 
@@ -694,12 +702,12 @@ export async function buyGold(
 export async function sellGold(
   signer: ethers.Signer,
   goldAmount: number,
-  _slippagePercent: number = 5
+  _slippagePercent: number = 5,
 ): Promise<{ txHash: string }> {
   const aureoContract = new ethers.Contract(
     AUREO_POOL_ADDRESS,
     AUREO_POOL_ABI,
-    signer
+    signer,
   );
   const mGoldContract = new ethers.Contract(M_GOLD_ADDRESS, M_GOLD_ABI, signer);
 
@@ -709,7 +717,7 @@ export async function sellGold(
     // First, approve the Aureo Pool to spend mGold
     const approveTx = await mGoldContract.approve(
       AUREO_POOL_ADDRESS,
-      amountInWei
+      amountInWei,
     );
     await approveTx.wait();
 
@@ -741,13 +749,13 @@ export async function getUSDCAllowance(userAddress: string): Promise<number> {
   const usdcContract = new ethers.Contract(
     M_USDC_ADDRESS,
     M_USDC_ABI,
-    provider
+    provider,
   );
 
   try {
     const allowance = await usdcContract.allowance(
       userAddress,
-      AUREO_POOL_ADDRESS
+      AUREO_POOL_ADDRESS,
     );
     const decimals = await usdcContract.decimals();
     return Number(ethers.formatUnits(allowance, decimals));
@@ -767,13 +775,13 @@ export async function getGoldAllowance(userAddress: string): Promise<number> {
   const mGoldContract = new ethers.Contract(
     M_GOLD_ADDRESS,
     M_GOLD_ABI,
-    provider
+    provider,
   );
 
   try {
     const allowance = await mGoldContract.allowance(
       userAddress,
-      AUREO_POOL_ADDRESS
+      AUREO_POOL_ADDRESS,
     );
     return Number(ethers.formatUnits(allowance, 18));
   } catch (error) {
@@ -794,24 +802,29 @@ export async function getUserBalances(userAddress: string): Promise<{
   goldPrice: number;
 }> {
   const provider = new ethers.JsonRpcProvider(RPC_URL);
-  
-  const mGoldContract = new ethers.Contract(M_GOLD_ADDRESS, M_GOLD_ABI, provider);
-  const usdcContract = new ethers.Contract(M_USDC_ADDRESS, M_USDC_ABI, provider);
-  const aureoContract = new ethers.Contract(AUREO_POOL_ADDRESS, AUREO_POOL_ABI, provider);
+
+  const mGoldContract = new ethers.Contract(
+    M_GOLD_ADDRESS,
+    M_GOLD_ABI,
+    provider,
+  );
+  const usdcContract = new ethers.Contract(
+    M_USDC_ADDRESS,
+    M_USDC_ABI,
+    provider,
+  );
 
   try {
-    const [goldBalanceRaw, usdcBalanceRaw, usdcDecimals, goldPriceRaw] = await Promise.all([
-      mGoldContract.balanceOf(userAddress),
-      usdcContract.balanceOf(userAddress),
-      usdcContract.decimals(),
-      aureoContract.getGoldPrice18Decimals().catch(() => null),
-    ]);
+    const [goldBalanceRaw, usdcBalanceRaw, usdcDecimals, goldPrice] =
+      await Promise.all([
+        mGoldContract.balanceOf(userAddress),
+        usdcContract.balanceOf(userAddress),
+        usdcContract.decimals(),
+        getGoldPrice(), // Use Pyth Hermes API instead of on-chain oracle
+      ]);
 
     const gold = Number(ethers.formatUnits(goldBalanceRaw, 18));
     const usdc = Number(ethers.formatUnits(usdcBalanceRaw, usdcDecimals));
-    const goldPrice = goldPriceRaw 
-      ? Number(ethers.formatUnits(goldPriceRaw, 18))
-      : FALLBACK_GOLD_PRICE;
 
     return { gold, usdc, goldPrice };
   } catch (error) {
